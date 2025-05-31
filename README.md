@@ -123,3 +123,10 @@ Para parar e remover os containers:
 ```sh
 docker-compose -f docker-compose.prod.yml down
 ```
+
+### TypeORM Migrations
+
+Criar uma migration:
+```sh
+npm run migration:gen -- CreatePlan
+```
