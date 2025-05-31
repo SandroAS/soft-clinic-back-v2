@@ -10,10 +10,10 @@ import {
   ManyToOne,
 } from 'typeorm';
 
-import { Subscription } from '@/subscriptions/entities/subscription.entity';
-import { Plan } from '@/plans/entities/plan.entity';
 import { User } from './user.entity';
 import { Trial } from './trial.entity';
+import { Plan } from './plan.entity';
+import { Subscription } from './subscription.entity';
 
 @Entity('accounts')
 export class Account {
