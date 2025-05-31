@@ -83,3 +83,43 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+
+## 🐋 Rodando com Docker
+Este projeto possui dois ambientes configurados com Docker: Desenvolvimento e Produção. Ambos utilizam docker-compose com MySQL e MinIO.
+
+### 📁 Pré-requisitos
+- Docker
+
+- Docker Compose
+
+- Arquivos .env.development e .env.production devidamente configurados na raiz do projeto
+
+### ✅ Ambiente de Desenvolvimento
+```sh
+docker-compose -f docker-compose.dev.yml up --build
+```
+- Usa o Dockerfile na raiz
+
+- Lê o .env.development
+
+- Expõe a API geralmente em: http://localhost:3000
+
+Para parar e remover os containers:
+```sh
+docker-compose -f docker-compose.dev.yml down
+```
+### 🚀 Ambiente de Produção
+```sh
+docker-compose -f docker-compose.prod.yml up --build
+```
+- Usa o mesmo Dockerfile
+
+- Lê o .env.production
+
+- Roda com npm run start:prod
+
+Para parar e remover os containers:
+```sh
+docker-compose -f docker-compose.prod.yml down
+```

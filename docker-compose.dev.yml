@@ -5,18 +5,26 @@ services:
     container_name: soft-clinic-nest
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     ports:
       - '3000:3000'
     env_file:
-      - .env.production
+      - .env.development
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:dev
     depends_on:
       - mysql
       - minio
+    networks:
+      - soft-clinic-network
 
   mysql:
     image: mysql:8
     container_name: soft-clinic-mysql
+    ports:
+      - '3306:3306'
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: softclinic
@@ -24,6 +32,8 @@ services:
       MYSQL_PASSWORD: clinic_pass
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - soft-clinic-network
 
   minio:
     image: minio/minio
@@ -37,7 +47,13 @@ services:
       MINIO_ROOT_PASSWORD: admin123
     volumes:
       - minio_data:/data
+    networks:
+      - soft-clinic-network
 
 volumes:
   mysql_data:
   minio_data:
+
+networks:
+  soft-clinic-network:
+    name: soft-clinic-network
