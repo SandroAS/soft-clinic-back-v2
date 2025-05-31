@@ -12,7 +12,7 @@ const cookieSession = require('cookie-session');
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,
+      isGlobal: true
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -25,11 +25,11 @@ const cookieSession = require('cookie-session');
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
         autoLoadEntities: true,
-        synchronize: true,
-      }),
+        synchronize: false
+      })
     }),
     UsersModule,
-    AuthModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [
@@ -37,10 +37,10 @@ const cookieSession = require('cookie-session');
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({
-        whitelist: true,
-      }),
-    },
-  ],
+        whitelist: true
+      })
+    }
+  ]
 })
 export class AppModule {
   constructor(private configService: ConfigService) {}
@@ -49,8 +49,8 @@ export class AppModule {
     consumer
       .apply(
         cookieSession({
-          keys: [this.configService.get('COOKIE_KEY')],
-        }),
+          keys: [this.configService.get('COOKIE_KEY')]
+        })
       )
       .forRoutes('*');
   }
