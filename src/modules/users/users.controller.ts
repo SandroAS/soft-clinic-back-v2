@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { UsersService } from './users.service';
-import { Serialize } from '../interceptors/serialize.interceptor';
+import { Serialize } from '../../interceptors/serialize.interceptor';
 import { UserDto } from './dtos/user.dto';
 import { JwtSessionGuard } from '../auth/guards/jwt-auth.guard';
 
