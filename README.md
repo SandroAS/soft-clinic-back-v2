@@ -128,5 +128,5 @@ docker-compose -f docker-compose.prod.yml down
 
 Criar uma migration:
 ```sh
-npm run migration:gen -- CreatePlan
+npm run migration:generate -- CreatePlan
 ```

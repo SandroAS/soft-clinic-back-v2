@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 const args = process.argv.slice(2);
 
 if (!args[0]) {
-  console.error('❌ Informe o nome da migration.\nEx: npm run migration:gen -- CreatePlan');
+  console.error('❌ Informe o nome da migration.\nEx: npm run migration:generate -- CreatePlan');
   process.exit(1);
 }
 
