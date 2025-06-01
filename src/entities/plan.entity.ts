@@ -5,8 +5,9 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  BeforeInsert,
 } from 'typeorm';
-
+import { v4 as uuidv4 } from 'uuid';
 import { Subscription } from './subscription.entity';
 
 @Entity('plans')
@@ -14,8 +15,13 @@ export class Plan {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'uuid', unique: true, default: () => 'UUID()' })
+  @Column({ type: 'uuid', unique: true })
   uuid: string;
+
+  @BeforeInsert()
+  generateUuid() {
+    this.uuid = uuidv4();
+  }
 
   @Column()
   name: string;
@@ -35,9 +41,13 @@ export class Plan {
   @OneToMany(() => Subscription, (sub) => sub.plan)
   subscriptions: Subscription[];
 
-  @CreateDateColumn()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @Column({ 
+    type: 'timestamp', 
+    default: () => 'CURRENT_TIMESTAMP', 
+    onUpdate: 'CURRENT_TIMESTAMP' 
+  })
   updated_at: Date;
 }

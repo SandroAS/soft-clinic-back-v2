@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, Table, TableForeignKey } from "typeorm";
 
-export class CreateTrials implements MigrationInterface {
+export class CreateTrials1748787391605 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(new Table({
       name: 'trials',
@@ -14,14 +14,13 @@ export class CreateTrials implements MigrationInterface {
         },
         {
           name: 'uuid',
-          type: 'uuid',
+          type: 'char',
+          length: '36',
           isUnique: true,
-          default: 'UUID()',
         },
         {
           name: 'started_at',
           type: 'datetime',
-          isNullable: false,
         },
         {
           name: 'ended_at',
@@ -31,7 +30,6 @@ export class CreateTrials implements MigrationInterface {
         {
           name: 'account_id',
           type: 'int',
-          isNullable: false,
         },
         {
           name: 'created_at',

@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, Table, TableForeignKey } from "typeorm";
 
-export class CreateAccounts implements MigrationInterface {
+export class CreateAccounts1748787043193 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(new Table({
       name: 'accounts',
@@ -14,14 +14,13 @@ export class CreateAccounts implements MigrationInterface {
         },
         {
           name: 'uuid',
-          type: 'varchar',
+          type: 'char',
+          length: '36',
           isUnique: true,
-          default: 'UUID()',
         },
         {
           name: 'admin_id',
           type: 'int',
-          isNullable: false,
         },
         {
           name: 'plan_id',
@@ -47,14 +46,14 @@ export class CreateAccounts implements MigrationInterface {
         },
         {
           name: 'created_at',
-          type: 'datetime',
-          default: 'CURRENT_TIMESTAMP(6)',
+          type: 'timestamp',
+          default: 'CURRENT_TIMESTAMP',
         },
         {
           name: 'updated_at',
-          type: 'datetime',
-          default: 'CURRENT_TIMESTAMP(6)',
-          onUpdate: 'CURRENT_TIMESTAMP(6)',
+          type: 'timestamp',
+          default: 'CURRENT_TIMESTAMP',
+          onUpdate: 'CURRENT_TIMESTAMP',
         },
       ],
     }));

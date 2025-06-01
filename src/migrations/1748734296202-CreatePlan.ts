@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner, Table } from "typeorm";
 
-export class CreatePlan implements MigrationInterface {
-  name = 'CreatePlan';
-
+export class CreatePlan1748734296202 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(new Table({
       name: 'plans',
@@ -16,14 +14,13 @@ export class CreatePlan implements MigrationInterface {
         },
         {
           name: 'uuid',
-          type: 'varchar',
+          type: 'char',
+          length: '36',
           isUnique: true,
-          default: 'UUID()',
         },
         {
           name: 'name',
           type: 'varchar',
-          isNullable: false,
         },
         {
           name: 'description',
@@ -35,13 +32,11 @@ export class CreatePlan implements MigrationInterface {
           type: 'decimal',
           precision: 10,
           scale: 2,
-          isNullable: false,
         },
         {
           name: 'interval',
           type: 'enum',
           enum: ['monthly', 'yearly'],
-          isNullable: false,
         },
         {
           name: 'user_limit',
@@ -50,14 +45,14 @@ export class CreatePlan implements MigrationInterface {
         },
         {
           name: 'created_at',
-          type: 'datetime',
-          default: 'CURRENT_TIMESTAMP(6)',
+          type: 'timestamp',
+          default: 'CURRENT_TIMESTAMP',
         },
         {
           name: 'updated_at',
-          type: 'datetime',
-          default: 'CURRENT_TIMESTAMP(6)',
-          onUpdate: 'CURRENT_TIMESTAMP(6)',
+          type: 'timestamp',
+          default: 'CURRENT_TIMESTAMP',
+          onUpdate: 'CURRENT_TIMESTAMP',
         },
       ],
     }));

@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, TableForeignKey } from "typeorm";
 
-export class AddRelationshipsToAccounts implements MigrationInterface {
+export class AddRelationshipsToAccounts1748787918952 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createForeignKey('accounts', new TableForeignKey({
       columnNames: ['admin_id'],

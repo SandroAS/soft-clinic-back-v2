@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, Table, TableForeignKey } from "typeorm";
 
-export class CreateSubscriptions implements MigrationInterface {
+export class CreateSubscriptions1748787303481 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(new Table({
       name: 'subscriptions',
@@ -14,24 +14,21 @@ export class CreateSubscriptions implements MigrationInterface {
         },
         {
           name: 'uuid',
-          type: 'uuid',
+          type: 'char',
+          length: '36',
           isUnique: true,
-          default: 'UUID()',
         },
         {
           name: 'account_id',
           type: 'int',
-          isNullable: false,
         },
         {
           name: 'plan_id',
           type: 'int',
-          isNullable: false,
         },
         {
           name: 'started_at',
           type: 'datetime',
-          isNullable: false,
         },
         {
           name: 'ended_at',

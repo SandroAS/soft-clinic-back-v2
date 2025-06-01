@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn, BeforeInsert } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 import { Account } from './account.entity';
 
 @Entity('trials')
@@ -6,8 +7,13 @@ export class Trial {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'uuid', unique: true, default: () => 'UUID()' })
+  @Column({ type: 'uuid', unique: true })
   uuid: string;
+
+  @BeforeInsert()
+  generateUuid() {
+    this.uuid = uuidv4();
+  }
 
   @Column()
   started_at: Date;
@@ -22,9 +28,13 @@ export class Trial {
   @Column()
   account_id: number;
 
-  @CreateDateColumn()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @Column({ 
+    type: 'timestamp', 
+    default: () => 'CURRENT_TIMESTAMP', 
+    onUpdate: 'CURRENT_TIMESTAMP' 
+  })
   updated_at: Date;
 }

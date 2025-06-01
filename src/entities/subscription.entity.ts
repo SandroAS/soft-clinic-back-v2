@@ -6,8 +6,9 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  BeforeInsert,
 } from 'typeorm';
-
+import { v4 as uuidv4 } from 'uuid';
 import { Account } from './account.entity';
 import { Plan } from './plan.entity';
 
@@ -23,8 +24,13 @@ export class Subscription {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'uuid', unique: true, default: () => 'UUID()' })
+  @Column({ type: 'uuid', unique: true })
   uuid: string;
+
+  @BeforeInsert()
+  generateUuid() {
+    this.uuid = uuidv4();
+  }
 
   @ManyToOne(() => Account, (account) => account.subscriptions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'account_id' })
@@ -56,9 +62,13 @@ export class Subscription {
   })
   status: SubscriptionStatus;
 
-  @CreateDateColumn()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @Column({ 
+    type: 'timestamp', 
+    default: () => 'CURRENT_TIMESTAMP', 
+    onUpdate: 'CURRENT_TIMESTAMP' 
+  })
   updated_at: Date;
 }

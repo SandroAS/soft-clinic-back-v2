@@ -8,8 +8,9 @@ import {
   OneToOne,
   JoinColumn,
   ManyToOne,
+  BeforeInsert,
 } from 'typeorm';
-
+import { v4 as uuidv4 } from 'uuid';
 import { User } from './user.entity';
 import { Trial } from './trial.entity';
 import { Plan } from './plan.entity';
@@ -20,8 +21,13 @@ export class Account {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'uuid', unique: true, default: () => 'UUID()' })
+  @Column({ type: 'uuid', unique: true })
   uuid: string;
+
+  @BeforeInsert()
+  generateUuid() {
+    this.uuid = uuidv4();
+  }
 
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'admin_id' })
@@ -63,9 +69,13 @@ export class Account {
   @Column({ default: true })
   in_trial: boolean;
 
-  @CreateDateColumn()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @Column({ 
+    type: 'timestamp', 
+    default: () => 'CURRENT_TIMESTAMP', 
+    onUpdate: 'CURRENT_TIMESTAMP' 
+  })
   updated_at: Date;
 }
