@@ -26,8 +26,7 @@ export class CreateAccounts implements MigrationInterface {
         {
           name: 'plan_id',
           type: 'int',
-          isNullable: true,
-          default: 1,
+          isNullable: true
         },
         {
           name: 'current_subscription_id',
