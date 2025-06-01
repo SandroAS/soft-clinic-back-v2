@@ -21,8 +21,14 @@ export class Plan {
   @Column({ nullable: true })
   description: string;
 
+  @Column({ default: false })
+  is_dynamic: boolean;
+
   @Column({ type: 'decimal', precision: 10, scale: 2 })
-  price: number;
+  base_price: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  price_per_professional: number;
 
   @Column({ type: 'enum', enum: ['monthly', 'yearly'] })
   interval: 'monthly' | 'yearly';
