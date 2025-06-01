@@ -17,8 +17,8 @@ export class UserDto {
   cpf: string;
 
   @Expose()
-  createdAt: Date;
+  created_at: Date;
 
   @Expose()
-  updatedAt: Date;
+  updated_at: Date;
 }

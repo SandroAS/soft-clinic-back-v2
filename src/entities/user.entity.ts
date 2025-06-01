@@ -34,8 +34,8 @@ export class User {
   account_id: number;
 
   @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date;
+  updated_at: Date;
 }

@@ -40,7 +40,6 @@ export class Account {
   @Column({ nullable: true })
   plan_id: number;
 
-  // Assinatura atual ativa (pode ser nula)
   @OneToOne(() => Subscription, { nullable: true })
   @JoinColumn({ name: 'current_subscription_id' })
   currentSubscription: Subscription;
