@@ -1,20 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
-  OneToOne,
-  JoinColumn,
-  ManyToOne,
-  BeforeInsert,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn, ManyToOne, BeforeInsert } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from './user.entity';
-import { Trial } from './trial.entity';
 import { Plan } from './plan.entity';
 import { Subscription } from './subscription.entity';
+import { Trial } from './trial.entity';
 
 @Entity('accounts')
 export class Account {
@@ -29,12 +18,12 @@ export class Account {
     this.uuid = uuidv4();
   }
 
+  @Column()
+  admin_id: number;
+  
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'admin_id' })
   admin: User;
-
-  @Column()
-  admin_id: number;
 
   @OneToMany(() => User, (user) => user.account)
   users: User[];
@@ -45,13 +34,13 @@ export class Account {
 
   @Column({ nullable: true })
   plan_id: number;
+  
+  @Column({ nullable: true })
+  current_subscription_id: number;
 
   @OneToOne(() => Subscription, { nullable: true })
   @JoinColumn({ name: 'current_subscription_id' })
   currentSubscription: Subscription;
-
-  @Column({ nullable: true })
-  current_subscription_id: number;
 
   @OneToMany(() => Subscription, (sub) => sub.account)
   subscriptions: Subscription[];

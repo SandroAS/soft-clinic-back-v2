@@ -1,16 +1,7 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-  BeforeInsert,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, BeforeInsert } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { Account } from './account.entity';
 import { Plan } from './plan.entity';
+import { Account } from './account.entity';
 
 export enum SubscriptionStatus {
   ACTIVE = 'ACTIVE',

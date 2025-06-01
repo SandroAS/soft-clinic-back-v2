@@ -1,7 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, BeforeInsert } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, BeforeInsert } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { v4 as uuidv4 } from 'uuid';
 import { Account } from './account.entity';
+
+export enum Gender {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+}
 
 @Entity()
 export class User {
@@ -28,16 +33,19 @@ export class User {
   @Column({ nullable: true })
   cpf: string;
 
+  @Column({ type: 'enum', enum: Gender, nullable: true })
+  gender: Gender | null;
+
   @Column()
   @Exclude()
   password: string;
 
+  @Column()
+  account_id: number;
+  
   @ManyToOne(() => Account, (account) => account.users)
   @JoinColumn({ name: 'account_id' })
   account: Account;
-
-  @Column()
-  account_id: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

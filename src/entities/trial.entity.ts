@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn, BeforeInsert } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, BeforeInsert } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { Account } from './account.entity';
 
