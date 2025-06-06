@@ -1,7 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, BeforeInsert } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, BeforeInsert, OneToMany } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { Plan } from './plan.entity';
 import { Account } from './account.entity';
+// import { Sale } from '../entities_/sales.entity';
+// import { SubscriptionCharge } from '../entities_/subscription-charge.entity';
 
 export enum SubscriptionStatus {
   ACTIVE = 'ACTIVE',
@@ -52,6 +54,12 @@ export class Subscription {
     default: SubscriptionStatus.PENDING,
   })
   status: SubscriptionStatus;
+
+  // @OneToMany(() => Sale, (sale) => sale.subscription)
+  // sales: Sale[];
+
+  // @OneToMany(() => SubscriptionCharge, (charge) => charge.subscription)
+  // charges: SubscriptionCharge[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

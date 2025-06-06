@@ -4,6 +4,7 @@ import { User } from './user.entity';
 import { Plan } from './plan.entity';
 import { Subscription } from './subscription.entity';
 import { Trial } from './trial.entity';
+// import { Sale } from '../entities_/sales.entity';
 
 @Entity('accounts')
 export class Account {
@@ -57,6 +58,9 @@ export class Account {
 
   @Column({ default: true })
   in_trial: boolean;
+
+  // @OneToMany(() => Sale, (sale) => sale.account)
+  // sales: Sale[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, BeforeInsert } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { Subscription } from './subscription.entity';
+// import { Sale } from '../entities_/sales.entity';
 
 @Entity('plans')
 export class Plan {
@@ -38,6 +39,9 @@ export class Plan {
 
   @OneToMany(() => Subscription, (sub) => sub.plan)
   subscriptions: Subscription[];
+
+  // @OneToMany(() => Sale, (sale) => sale.plan)
+  // sales: Sale[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
