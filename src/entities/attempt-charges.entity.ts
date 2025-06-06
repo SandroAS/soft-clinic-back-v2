@@ -1,6 +1,6 @@
 import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-// import { PaymentIntention } from './payment-intention.entity';
+import { PaymentIntention } from './payment-intention.entity';
 
 export type GatewayProvider = 'PAGARME';
 
@@ -20,9 +20,9 @@ export class AttemptCharge {
   @Column()
   payment_intention_id: number;
 
-  // @ManyToOne(() => PaymentIntention, intention => intention.attemptCharges)
-  // @JoinColumn({ name: 'payment_intention_id' })
-  // paymentIntention: PaymentIntention;
+  @ManyToOne(() => PaymentIntention, intention => intention.attemptCharges)
+  @JoinColumn({ name: 'payment_intention_id' })
+  paymentIntention: PaymentIntention;
 
   @Column()
   status: 'pending' | 'failed' | 'success';

@@ -1,5 +1,6 @@
 import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { AttemptCharge } from './attempt-charges.entity';
 
 @Entity('payment_intentions')
 export class PaymentIntention {
@@ -38,8 +39,11 @@ export class PaymentIntention {
   @Column({ nullable: true })
   expires_at: Date;
 
-  // @OneToMany(() => AttemptCharge, attempt => attempt.paymentIntention, { cascade: true })
-  // attemptCharges: AttemptCharge[];
+  @Column({ default: 0 })
+  total_attempts: number;
+
+  @OneToMany(() => AttemptCharge, attempt => attempt.paymentIntention, { cascade: true })
+  attemptCharges: AttemptCharge[];
 
   // @OneToOne(() => Sale, sale => sale.paymentIntention)
   // sale: Sale;
