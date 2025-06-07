@@ -24,6 +24,13 @@ export class User {
     this.uuid = uuidv4();
   }
 
+  @Column()
+  account_id: number;
+  
+  @ManyToOne(() => Account, (account) => account.users)
+  @JoinColumn({ name: 'account_id' })
+  account: Account;
+
   @Column({ nullable: true })
   name: string;
 
@@ -43,12 +50,8 @@ export class User {
   @Exclude()
   password: string;
 
-  @Column()
-  account_id: number;
-  
-  @ManyToOne(() => Account, (account) => account.users)
-  @JoinColumn({ name: 'account_id' })
-  account: Account;
+  @Column({ default: true })
+  is_active: boolean;
 
   @OneToMany(() => PaymentIntention, intention => intention.user)
   paymentIntentions: PaymentIntention[];
