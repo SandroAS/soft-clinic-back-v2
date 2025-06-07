@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, BeforeInsert, JoinColumn, OneToOne } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-// import { Subscription } from './subscription.entity';
+import { Subscription } from './subscription.entity';
 // import { Sale } from './sales.entity';
 
 export type ChargeStatus = 'open' | 'paid' | 'failed';
@@ -21,9 +21,9 @@ export class SubscriptionCharge {
   @Column({ nullable: true })
   subscription_id: number;
 
-  // @ManyToOne(() => Subscription, (subscription) => subscription.charges, { onDelete: 'CASCADE' })
-  // @JoinColumn({ name: 'subscription_id' })
-  // subscription: Subscription;
+  @ManyToOne(() => Subscription, (subscription) => subscription.charges, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'subscription_id' })
+  subscription: Subscription;
 
   @Column({ nullable: true })
   sale_id: number;

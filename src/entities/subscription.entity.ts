@@ -2,8 +2,8 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, BeforeIn
 import { v4 as uuidv4 } from 'uuid';
 import { Plan } from './plan.entity';
 import { Account } from './account.entity';
-// import { Sale } from '../entities_/sales.entity';
-// import { SubscriptionCharge } from '../entities_/subscription-charge.entity';
+// import { Sale } from './sales.entity';
+import { SubscriptionCharge } from './subscription-charge.entity';
 
 export enum SubscriptionStatus {
   ACTIVE = 'ACTIVE',
@@ -58,8 +58,8 @@ export class Subscription {
   // @OneToMany(() => Sale, (sale) => sale.subscription)
   // sales: Sale[];
 
-  // @OneToMany(() => SubscriptionCharge, (charge) => charge.subscription)
-  // charges: SubscriptionCharge[];
+  @OneToMany(() => SubscriptionCharge, (charge) => charge.subscription)
+  charges: SubscriptionCharge[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
