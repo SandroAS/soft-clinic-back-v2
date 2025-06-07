@@ -25,7 +25,7 @@ export class Plan {
   @Column({ default: false })
   is_dynamic: boolean; // Indica que o plano é dinâmico, que cobra por usuário do tipo profissional adicional
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   base_price: number;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })

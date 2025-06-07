@@ -14,20 +14,20 @@ async function seedPlans() {
     {
       name: 'Essencial Anual',
       description: '1 administrador + até 3 assistentes. Versão anual com desconto.',
-      price: 2000.00,
+      base_price: 2000.00,
       interval: 'yearly',
     },
     {
       name: 'Profissional Mensal',
       description: '1 administrador + equipe de profissionais e assistentes. Ideal para clínicas em crescimento.',
-      price: 200.00,
+      base_price: 200.00,
       price_per_professional: 150.00,
       interval: 'monthly',
     },
     {
       name: 'Profissional Anual',
       description: 'Plano completo anual com suporte para múltiplos profissionais.',
-      price: 2000.00,
+      base_price: 2000.00,
       price_per_professional: 1500.00,
       interval: 'yearly',
     },
