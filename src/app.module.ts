@@ -12,6 +12,7 @@ import { PermissionsModule } from './modules/permissions/permissions.module';
 import { PlansModule } from './modules/plans/plans.module';
 import { TrialsModule } from './modules/trials/trials.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
+import { SubscriptionChargesModule } from './modules/subscription-charges/subscription-charges.module';
 
 const cookieSession = require('cookie-session');
 
@@ -41,7 +42,8 @@ const cookieSession = require('cookie-session');
     PermissionsModule,
     PlansModule,
     TrialsModule,
-    SubscriptionsModule
+    SubscriptionsModule,
+    SubscriptionChargesModule
   ],
   controllers: [AppController],
   providers: [
