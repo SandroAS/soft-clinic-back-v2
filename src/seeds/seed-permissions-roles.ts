@@ -1,6 +1,6 @@
-import { Permission } from '@/entities/permissions.entity';
+import { Permission } from '../entities/permissions.entity';
 import dataSource from '../../data-source';
-import { Role } from '@/entities/roles.entity';
+import { Role } from '../entities/roles.entity';
 
 const allPermissions = [
   'dashboard_read',
@@ -130,6 +130,16 @@ async function seed() {
   const connection = await dataSource.initialize();
   const permissionRepo = connection.getRepository(Permission);
   const roleRepo = connection.getRepository(Role);
+
+  // Cria role SUPER_ADMIN sem permissões vinculadas
+  let superAdminRole = await roleRepo.findOne({ where: { name: 'SUPER_ADMIN' } });
+  if (!superAdminRole) {
+    superAdminRole = roleRepo.create({ name: 'SUPER_ADMIN' });
+    await roleRepo.save(superAdminRole);
+    console.log('✅ Role SUPER_ADMIN criada (sem permissões vinculadas).');
+  } else {
+    console.log('⚠️ Role SUPER_ADMIN já existe.');
+  }
 
   // Cria as permissões
   const permissionEntities = await Promise.all(
