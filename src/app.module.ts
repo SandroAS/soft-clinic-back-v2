@@ -10,6 +10,7 @@ import { AccountsModule } from './modules/accounts/accounts.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
 import { PlansModule } from './modules/plans/plans.module';
+import { TrialsModule } from './modules/trials/trials.module';
 
 const cookieSession = require('cookie-session');
 
@@ -37,7 +38,8 @@ const cookieSession = require('cookie-session');
     AccountsModule,
     RolesModule,
     PermissionsModule,
-    PlansModule
+    PlansModule,
+    TrialsModule
   ],
   controllers: [AppController],
   providers: [
