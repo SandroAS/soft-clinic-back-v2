@@ -3,6 +3,7 @@ import { Exclude } from 'class-transformer';
 import { v4 as uuidv4 } from 'uuid';
 import { Account } from './account.entity';
 import { PaymentIntention } from './payment-intention.entity';
+import { Sale } from './sales.entity';
 
 export enum Gender {
   MALE = 'MALE',
@@ -50,6 +51,9 @@ export class User {
 
   @OneToMany(() => PaymentIntention, intention => intention.user)
   paymentIntentions: PaymentIntention[];
+
+  @OneToMany(() => Sale, sale => sale.user)
+  sales: Sale[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

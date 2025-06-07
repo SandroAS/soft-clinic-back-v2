@@ -5,7 +5,7 @@ import { Plan } from './plan.entity';
 import { Subscription } from './subscription.entity';
 import { Trial } from './trial.entity';
 import { PaymentIntention } from './payment-intention.entity';
-// import { Sale } from '../entities_/sales.entity';
+import { Sale } from './sales.entity';
 
 @Entity('accounts')
 export class Account {
@@ -23,7 +23,7 @@ export class Account {
   @Column()
   admin_id: number;
   
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => User)
   @JoinColumn({ name: 'admin_id' })
   admin: User;
 
@@ -60,8 +60,8 @@ export class Account {
   @Column({ default: true })
   in_trial: boolean;
 
-  // @OneToMany(() => Sale, (sale) => sale.account)
-  // sales: Sale[];
+  @OneToMany(() => Sale, (sale) => sale.account)
+  sales: Sale[];
 
   @OneToMany(() => PaymentIntention, intention => intention.account)
   paymentIntentions: PaymentIntention[];

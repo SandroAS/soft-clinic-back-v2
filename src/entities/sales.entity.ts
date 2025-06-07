@@ -3,7 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { Account } from '../entities/account.entity';
 import { Subscription } from '../entities/subscription.entity';
 import { Plan } from '../entities/plan.entity';
-// import { SubscriptionCharge } from '../entities_/subscription-charge.entity';
+import { SubscriptionCharge } from './subscription-charge.entity';
+import { User } from './user.entity';
 
 export type SaleType = 'subscription' | 'one_time' | 'service';
 export type PaymentMethod = 'CREDIT_CARD' | 'BOLETO' | 'PIX';
@@ -24,9 +25,16 @@ export class Sale {
   }
 
   @Column()
+  user_id: number;
+
+  @ManyToOne(() => User, (user) => user.sales)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @Column({ nullable: true })
   account_id: number;
 
-  @ManyToOne(() => Account, (account) => account.sales)
+  @ManyToOne(() => Account, (account) => account.sales, { nullable: true })
   @JoinColumn({ name: 'account_id' })
   account: Account;
 
