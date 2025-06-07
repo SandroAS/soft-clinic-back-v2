@@ -1,6 +1,7 @@
 import { BeforeInsert, Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from './user.entity';
+import { Permission } from './permissions.entity';
 
 @Entity('roles')
 export class Role {
@@ -21,13 +22,13 @@ export class Role {
   @OneToMany(() => User, user => user.role)
   users: User[];
 
-  // @ManyToMany(() => Permission)
-  // @JoinTable({
-  //   name: 'role_has_permissions',
-  //   joinColumn: { name: 'role_id' },
-  //   inverseJoinColumn: { name: 'permission_id' },
-  // })
-  // permissions: Permission[];
+  @ManyToMany(() => Permission)
+  @JoinTable({
+    name: 'role_has_permissions',
+    joinColumn: { name: 'role_id' },
+    inverseJoinColumn: { name: 'permission_id' },
+  })
+  permissions: Permission[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
