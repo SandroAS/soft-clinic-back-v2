@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Account } from './account.entity';
 import { PaymentIntention } from './payment-intention.entity';
 import { Sale } from './sales.entity';
+import { Role } from './roles.entity';
 
 export enum Gender {
   MALE = 'MALE',
@@ -54,6 +55,13 @@ export class User {
 
   @OneToMany(() => Sale, sale => sale.user)
   sales: Sale[];
+
+  @Column()
+  role_id: number;
+
+  @ManyToOne(() => Role, role => role.users)
+  @JoinColumn({ name: 'role_id' })
+  role: Role;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
