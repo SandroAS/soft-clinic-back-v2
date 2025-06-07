@@ -3,8 +3,8 @@ import { Exclude } from 'class-transformer';
 import { v4 as uuidv4 } from 'uuid';
 import { Account } from './account.entity';
 import { PaymentIntention } from './payment-intention.entity';
-import { Sale } from './sales.entity';
-import { Role } from './roles.entity';
+import { Sale } from './sale.entity';
+import { Role } from './role.entity';
 
 export enum Gender {
   MALE = 'MALE',

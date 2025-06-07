@@ -5,7 +5,7 @@ import { Plan } from './plan.entity';
 import { Subscription } from './subscription.entity';
 import { Trial } from './trial.entity';
 import { PaymentIntention } from './payment-intention.entity';
-import { Sale } from './sales.entity';
+import { Sale } from './sale.entity';
 
 @Entity('accounts')
 export class Account {

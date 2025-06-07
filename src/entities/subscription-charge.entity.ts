@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, BeforeInsert, JoinColumn, OneToOne } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { Subscription } from './subscription.entity';
-import { Sale } from './sales.entity';
+import { Sale } from './sale.entity';
 
 export type ChargeStatus = 'open' | 'paid' | 'failed';
 

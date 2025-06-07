@@ -6,6 +6,9 @@ import { APP_PIPE } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { AccountsModule } from './modules/accounts/accounts.module';
+import { RolesModule } from './modules/roles/roles.module';
+import { PermissionsModule } from './modules/permissions/permissions.module';
 
 const cookieSession = require('cookie-session');
 
@@ -29,7 +32,10 @@ const cookieSession = require('cookie-session');
       })
     }),
     UsersModule,
-    AuthModule
+    AuthModule,
+    AccountsModule,
+    RolesModule,
+    PermissionsModule
   ],
   controllers: [AppController],
   providers: [

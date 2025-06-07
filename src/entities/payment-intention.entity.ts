@@ -1,6 +1,6 @@
 import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { AttemptCharge } from './attempt-charges.entity';
+import { AttemptCharge } from './attempt-charge.entity';
 import { User } from './user.entity';
 import { Account } from './account.entity';
 

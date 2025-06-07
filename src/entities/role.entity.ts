@@ -1,7 +1,7 @@
 import { BeforeInsert, Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from './user.entity';
-import { Permission } from './permissions.entity';
+import { Permission } from './permission.entity';
 
 @Entity('roles')
 export class Role {

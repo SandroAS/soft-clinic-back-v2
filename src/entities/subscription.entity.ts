@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, BeforeIn
 import { v4 as uuidv4 } from 'uuid';
 import { Plan } from './plan.entity';
 import { Account } from './account.entity';
-import { Sale } from './sales.entity';
+import { Sale } from './sale.entity';
 import { SubscriptionCharge } from './subscription-charge.entity';
 
 export enum SubscriptionStatus {

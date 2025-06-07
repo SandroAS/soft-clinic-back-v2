@@ -1,6 +1,6 @@
-import { Permission } from '../entities/permissions.entity';
+import { Permission } from '../entities/permission.entity';
 import dataSource from '../../data-source';
-import { Role } from '../entities/roles.entity';
+import { Role } from '../entities/role.entity';
 
 const allPermissions = [
   'dashboard_read',
