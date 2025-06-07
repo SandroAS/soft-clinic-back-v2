@@ -13,4 +13,4 @@ COPY package*.json ./
 RUN npm install --omit=dev
 COPY --from=builder /app/dist ./dist
 
-CMD ["node", "dist/main"]
+CMD sh -c "npm run migration:run:production && npm run seed:permissions-roles:production && node dist/main"

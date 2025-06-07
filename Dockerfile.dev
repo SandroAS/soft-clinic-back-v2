@@ -12,4 +12,4 @@ COPY . .
 # Instala o Nest CLI globalmente para usar `nest start`
 RUN npm install -g @nestjs/cli
 
-CMD ["npm", "run", "start:dev"]
+CMD sh -c "npm run migration:run && ts-node src/seeds/seed-permissions-roles.ts && npm run start:dev"
