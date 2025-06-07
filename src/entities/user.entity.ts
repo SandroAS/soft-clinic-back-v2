@@ -1,7 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, BeforeInsert } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, BeforeInsert, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { v4 as uuidv4 } from 'uuid';
 import { Account } from './account.entity';
+import { PaymentIntention } from './payment-intention.entity';
 
 export enum Gender {
   MALE = 'MALE',
@@ -46,6 +47,9 @@ export class User {
   @ManyToOne(() => Account, (account) => account.users)
   @JoinColumn({ name: 'account_id' })
   account: Account;
+
+  @OneToMany(() => PaymentIntention, intention => intention.user)
+  paymentIntentions: PaymentIntention[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

@@ -1,6 +1,8 @@
 import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { AttemptCharge } from './attempt-charges.entity';
+import { User } from './user.entity';
+import { Account } from './account.entity';
 
 @Entity('payment_intentions')
 export class PaymentIntention {
@@ -14,6 +16,20 @@ export class PaymentIntention {
   generateUuid() {
     this.uuid = uuidv4();
   }
+
+  @Column()
+  userId: number;
+
+  @ManyToOne(() => User, user => user.paymentIntentions)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @Column({ nullable: true })
+  accountId?: number;
+
+  @ManyToOne(() => Account, account => account.paymentIntentions, { nullable: true })
+  @JoinColumn({ name: 'account_id' })
+  account?: Account;
 
   @Column()
   status: 'charging' | 'waiting_payment' | 'expired' | 'cancelled' | 'completed';
@@ -42,11 +58,14 @@ export class PaymentIntention {
   @Column({ default: 0 })
   total_attempts: number;
 
-  @OneToMany(() => AttemptCharge, attempt => attempt.paymentIntention, { cascade: true })
-  attemptCharges: AttemptCharge[];
+  @Column({ nullable: true })
+  sale_id: number;
 
   // @OneToOne(() => Sale, sale => sale.paymentIntention)
   // sale: Sale;
+
+  @OneToMany(() => AttemptCharge, attempt => attempt.paymentIntention, { cascade: true })
+  attemptCharges: AttemptCharge[];
 
   @Column({ nullable: true })
   parent_intention_id?: number;

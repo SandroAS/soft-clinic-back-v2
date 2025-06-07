@@ -4,6 +4,7 @@ import { User } from './user.entity';
 import { Plan } from './plan.entity';
 import { Subscription } from './subscription.entity';
 import { Trial } from './trial.entity';
+import { PaymentIntention } from './payment-intention.entity';
 // import { Sale } from '../entities_/sales.entity';
 
 @Entity('accounts')
@@ -61,6 +62,9 @@ export class Account {
 
   // @OneToMany(() => Sale, (sale) => sale.account)
   // sales: Sale[];
+
+  @OneToMany(() => PaymentIntention, intention => intention.account)
+  paymentIntentions: PaymentIntention[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
