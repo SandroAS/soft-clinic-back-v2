@@ -1,16 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Permission } from '@/entities/permission.entity';
 import { Role } from '@/entities/role.entity';
+import { PermissionsService } from '../permissions/permissions.service';
 
 @Injectable()
 export class RolesService {
   constructor(
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
-    @InjectRepository(Permission)
-    private readonly permissionRepository: Repository<Permission>,
+    private readonly permissionsService: PermissionsService,
   ) {}
 
   findAll() {
@@ -23,9 +22,11 @@ export class RolesService {
 
   async assignPermissions(roleId: number, permissionIds: number[]) {
     const role = await this.roleRepository.findOne({ where: { id: roleId }, relations: ['permissions'] });
-    if (!role) throw new Error('Role not found');
+    if (!role) {
+      throw new NotFoundException('Role not found');
+    }
 
-    const permissions = await this.permissionRepository.findByIds(permissionIds);
+    const permissions = await this.permissionsService.findByIds(permissionIds);
     role.permissions = permissions;
 
     return this.roleRepository.save(role);
