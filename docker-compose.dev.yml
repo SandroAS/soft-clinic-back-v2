@@ -9,9 +9,9 @@ services:
     ports:
       - '3000:3000'
     environment:
-      - DATABASE_URL=mysql://${DB_USERNAME}:${DB_PASSWORD}@mysql:${DB_PORT}/${DB_DATABASE}
-      - JWT_SECRET=${JWT_SECRET}
-      - MINIO_BUCKET=${MINIO_BUCKET}
+      DATABASE_URL: mysql://${DB_USERNAME}:${DB_PASSWORD}@mysql:${DB_PORT}/${DB_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
+      MINIO_BUCKET: ${MINIO_BUCKET}
     env_file:
       - .env.development
     volumes:
@@ -19,8 +19,10 @@ services:
       - /app/node_modules
     command: npm run start:dev
     depends_on:
-      - mysql
-      - minio
+      mysql:
+        condition: service_healthy
+      minio:
+        condition: service_started
     networks:
       - soft-clinic-network
 
@@ -34,6 +36,12 @@ services:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     env_file:
       - .env.development
     volumes:

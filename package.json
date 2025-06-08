@@ -19,11 +19,11 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migration:generate": "ts-node --esm scripts/generate-migration.js",
-    "migration:run": "ts-node --esm ./node_modules/typeorm/cli.js migration:run -d ./data-source.ts",
-    "migration:revert": "ts-node --esm ./node_modules/typeorm/cli.js migration:revert -d ./data-source.ts",
+    "migration:run": "ts-node --esm ./node_modules/typeorm/cli.js migration:run -d ./src/data-source.ts",
+    "migration:revert": "ts-node --esm ./node_modules/typeorm/cli.js migration:revert -d ./src/data-source.ts",
     "seed:plans": "ts-node src/seeds/seed-plans.ts",
     "seed:roles": "ts-node src/seeds/seed-permissions-roles.ts",
-    "migration:run:production": "typeorm migration:run -d ./dist/data-source.js",
+    "migration:run:production": "typeorm migration:run -d ./dist/src/data-source.js",
     "seed:permissions-roles:production": "node dist/seeds/seed-permissions-roles.js"
   },
   "dependencies": {

@@ -1,4 +1,4 @@
-import AppDataSource from '../../data-source';
+import AppDataSource from '../data-source';
 import { Plan } from '../entities/plan.entity';
 
 export async function seedPlans() {

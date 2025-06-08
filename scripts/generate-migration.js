@@ -11,6 +11,6 @@ const name = args[0];
 const migrationPath = `src/migrations/${name}`;
 
 execSync(
-  `ts-node --esm ./node_modules/typeorm/cli.js migration:generate ${migrationPath} -d ./data-source.ts`,
+  `ts-node --esm ./node_modules/typeorm/cli.js migration:generate ${migrationPath} -d ./src/data-source.ts`,
   { stdio: 'inherit' }
 );

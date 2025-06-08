@@ -128,5 +128,10 @@ docker-compose -f docker-compose.prod.yml down
 
 Criar uma migration:
 ```sh
-npm run migration:generate -- CreatePlan
+npm run migration:generate -- CreateExample
+```
+
+Verificar migrations existentes
+```sh
+npx typeorm migration:show -d src/data-source.ts
 ```
