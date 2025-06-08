@@ -14,6 +14,7 @@ import { TrialsModule } from './modules/trials/trials.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { SubscriptionChargesModule } from './modules/subscription-charges/subscription-charges.module';
 import { PaymentIntentionsModule } from './modules/payment-intentions/payment-intentions.module';
+import { AttemptChargesModule } from './modules/attempt-charges/attempt-charges.module';
 
 const cookieSession = require('cookie-session');
 
@@ -45,7 +46,8 @@ const cookieSession = require('cookie-session');
     TrialsModule,
     SubscriptionsModule,
     SubscriptionChargesModule,
-    PaymentIntentionsModule
+    PaymentIntentionsModule,
+    AttemptChargesModule
   ],
   controllers: [AppController],
   providers: [
