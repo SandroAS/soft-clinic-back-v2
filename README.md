@@ -97,9 +97,9 @@ Este projeto possui dois ambientes configurados com Docker: Desenvolvimento e Pr
 
 ### ✅ Ambiente de Desenvolvimento
 ```sh
-docker-compose -f docker-compose.dev.yml up --build
+docker-compose --env-file .env.development -f docker-compose.dev.yml up --build
 ```
-- Usa o Dockerfile na raiz
+- Usa o Dockerfile.dev na raiz
 
 - Lê o .env.development
 
@@ -111,9 +111,9 @@ docker-compose -f docker-compose.dev.yml down
 ```
 ### 🚀 Ambiente de Produção
 ```sh
-docker-compose -f docker-compose.prod.yml up --build
+docker-compose --env-file .env.production -f docker-compose.yml up --build
 ```
-- Usa o mesmo Dockerfile
+- Usa o Dockerfile na raiz
 
 - Lê o .env.production
 
