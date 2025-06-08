@@ -1,5 +1,5 @@
+import AppDataSource from '../../data-source';
 import { Permission } from '../entities/permission.entity';
-import dataSource from '../../data-source';
 import { Role } from '../entities/role.entity';
 
 const allPermissions = [
@@ -126,10 +126,9 @@ const restrictedByProfessional = [
   'subscriptions_settings_upgrade',
 ];
 
-async function seed() {
-  const connection = await dataSource.initialize();
-  const permissionRepo = connection.getRepository(Permission);
-  const roleRepo = connection.getRepository(Role);
+export async function seedPermissionsRoles() {
+  const permissionRepo = AppDataSource.getRepository(Permission);
+  const roleRepo = AppDataSource.getRepository(Role);
 
   // Cria role SUPER_ADMIN sem permissões vinculadas
   let superAdminRole = await roleRepo.findOne({ where: { name: 'SUPER_ADMIN' } });
@@ -155,38 +154,47 @@ async function seed() {
   console.log(`✅ ${permissionEntities.length} permissões criadas ou encontradas.`);
 
   // Cria role ADMIN com todas as permissões
-  const adminRole = roleRepo.create({
-    name: 'ADMIN',
-    permissions: permissionEntities,
-  });
-  await roleRepo.save(adminRole);
-  console.log('✅ Role ADMIN criada.');
+  let adminRole = await roleRepo.findOne({ where: { name: 'ADMIN' } });
+  if (!adminRole) {
+    adminRole = roleRepo.create({
+      name: 'ADMIN',
+      permissions: permissionEntities,
+    });
+    await roleRepo.save(adminRole);
+    console.log('✅ Role ADMIN criada.');
+  } else {
+    console.log('⚠️ Role ADMIN já existe.');
+  }
 
   // Criar role ASSISTANT com permissões restritas para assistentes
-  const assistantPermissions = permissionEntities.filter(
-    (p) => !restrictedByAssistant.includes(p.name)
-  );
-  const assistantRole = roleRepo.create({
-    name: 'ASSISTANT',
-    permissions: assistantPermissions,
-  });
-  await roleRepo.save(assistantRole);
-  console.log('✅ Role ASSISTANT criada.');
+  let assistantRole = await roleRepo.findOne({ where: { name: 'ASSISTANT' } });
+  if (!assistantRole) {
+    const assistantPermissions = permissionEntities.filter(
+      (p) => !restrictedByAssistant.includes(p.name)
+    );
+    assistantRole = roleRepo.create({
+      name: 'ASSISTANT',
+      permissions: assistantPermissions,
+    });
+    await roleRepo.save(assistantRole);
+    console.log('✅ Role ASSISTANT criada.');
+  } else {
+    console.log('⚠️ Role ASSISTANT já existe.');
+  }
 
   // Criar role HEALTHCARE_PROFESSIONAL com permissões restritas para profissionais de saúde
-  const professionalPermissions = permissionEntities.filter(
-    (p) => !restrictedByProfessional.includes(p.name)
-  );
-  const professionalRole = roleRepo.create({
-    name: 'HEALTHCARE_PROFESSIONAL',
-    permissions: professionalPermissions,
-  });
-  await roleRepo.save(professionalRole);
-  console.log('✅ Role HEALTHCARE_PROFESSIONAL criada.');
-
-  await connection.destroy();
+  let professionalRole = await roleRepo.findOne({ where: { name: 'HEALTHCARE_PROFESSIONAL' } });
+  if (!professionalRole) {
+    const professionalPermissions = permissionEntities.filter(
+      (p) => !restrictedByProfessional.includes(p.name)
+    );
+    professionalRole = roleRepo.create({
+      name: 'HEALTHCARE_PROFESSIONAL',
+      permissions: professionalPermissions,
+    });
+    await roleRepo.save(professionalRole);
+    console.log('✅ Role HEALTHCARE_PROFESSIONAL criada.');
+  } else {
+    console.log('⚠️ Role HEALTHCARE_PROFESSIONAL já existe.');
+  }
 }
-
-seed().catch((err) => {
-  console.error('Erro ao rodar seeder:', err);
-});

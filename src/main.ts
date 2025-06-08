@@ -1,8 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import AppDataSource from '../data-source';
+import { runSeeders } from './seeds/run-seeders';
 
 async function bootstrap() {
+  await AppDataSource.initialize();
+  console.log('Database connected.');
+
+  await AppDataSource.runMigrations();
+  console.log('Migrations executed.');
+
+  await runSeeders();
+
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
@@ -15,5 +25,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   await app.listen(3000);
+  console.log('Application is running on http://localhost:3000');
 }
+
 bootstrap();

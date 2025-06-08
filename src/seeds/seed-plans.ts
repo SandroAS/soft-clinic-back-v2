@@ -1,9 +1,7 @@
 import AppDataSource from '../../data-source';
 import { Plan } from '../entities/plan.entity';
 
-async function seedPlans() {
-  await AppDataSource.initialize();
-
+export async function seedPlans() {
   const plans = [
     {
       name: 'Essencial Mensal',
@@ -44,9 +42,4 @@ async function seedPlans() {
   }
 
   console.log('✅ Planos inseridos com sucesso!');
-  await AppDataSource.destroy();
 }
-
-seedPlans().catch((err) => {
-  console.error('❌ Erro ao executar seed:', err);
-});
