@@ -15,6 +15,7 @@ import { SubscriptionsModule } from './modules/subscriptions/subscriptions.modul
 import { SubscriptionChargesModule } from './modules/subscription-charges/subscription-charges.module';
 import { PaymentIntentionsModule } from './modules/payment-intentions/payment-intentions.module';
 import { AttemptChargesModule } from './modules/attempt-charges/attempt-charges.module';
+import { SalesModule } from './modules/sales/sales.module';
 
 const cookieSession = require('cookie-session');
 
@@ -47,7 +48,8 @@ const cookieSession = require('cookie-session');
     SubscriptionsModule,
     SubscriptionChargesModule,
     PaymentIntentionsModule,
-    AttemptChargesModule
+    AttemptChargesModule,
+    SalesModule
   ],
   controllers: [AppController],
   providers: [
