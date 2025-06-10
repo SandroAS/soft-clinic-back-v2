@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Trial } from '@/entities/trial.entity';
 import { CreateTrialDto } from './dtos/create-trial.dto';
 
@@ -26,9 +26,10 @@ export class TrialsService {
     return trial;
   }
 
-  async create(data: CreateTrialDto): Promise<Trial> {
-    const trial = this.trialRepository.create(data);
-    return this.trialRepository.save(trial);
+  async create(data: CreateTrialDto, manager?: EntityManager): Promise<Trial> {
+    const trialRepository = manager ? manager.getRepository(Trial) : this.trialRepository;
+    const trial = trialRepository.create(data);
+    return trialRepository.save(trial);
   }
 
   async update(id: number, data: Partial<Trial>): Promise<Trial> {

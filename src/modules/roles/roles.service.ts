@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Role } from '@/entities/role.entity';
 import { PermissionsService } from '../permissions/permissions.service';
 import { RolesTypes } from './dtos/roles-types.dto';
@@ -17,8 +17,9 @@ export class RolesService {
     return this.roleRepository.find({ relations: ['permissions'] });
   }
 
-  async findByName(name: RolesTypes): Promise<Role | undefined> {
-    const role = await this.roleRepository
+  async findByName(name: RolesTypes, manager?: EntityManager): Promise<Role | undefined> {
+    const roleRepository = manager ? manager.getRepository(Role) : this.roleRepository;
+    const role = await roleRepository
       .createQueryBuilder('role')
       .where('role.name = :name', { name })
       .leftJoinAndSelect('role.permissions', 'permission')
