@@ -32,9 +32,9 @@ export class AuthService {
     const hashBuffer = (await scrypt(password, salt, 32)) as Buffer;
     const hashedPassword = salt + '.' + hashBuffer.toString('hex');
 
-    const user = await this.usersService.create(email, hashedPassword);
+    let user = await this.usersService.create(email, hashedPassword, 'ADMIN');
 
-    const account = await this.accountsService.create({ admin_id: user.id });
+    let account = await this.accountsService.create({ admin_id: user.id });
 
     const now = new Date();
     const trialEndedAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -46,6 +46,10 @@ export class AuthService {
     const trial = await this.trialsService.create(trialDto);
   
     await this.accountsService.update(account.id, { last_trial_id: trial.id });
+
+    user = await this.usersService.update(user.id, { ...user, account_id: account.id });
+    account.lastTrial = trial;
+    user.account = account;
 
     const payload = { sub: user.id, email: user.email };
     const accessToken = this.jwtService.sign(payload);

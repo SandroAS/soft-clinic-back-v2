@@ -6,9 +6,13 @@ import { UsersService } from './users.service';
 import { User } from '@/entities/user.entity';
 // import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
 import { CurrentUserMiddleware } from './middlewares/current-user.middlewares';
+import { RolesModule } from '../roles/roles.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User])],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    RolesModule
+  ],
   controllers: [UsersController],
   providers: [
     UsersService,

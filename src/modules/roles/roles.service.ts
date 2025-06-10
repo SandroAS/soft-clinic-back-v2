@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from '@/entities/role.entity';
 import { PermissionsService } from '../permissions/permissions.service';
+import { RolesTypes } from './dtos/roles-types.dto';
 
 @Injectable()
 export class RolesService {
@@ -14,6 +15,34 @@ export class RolesService {
 
   findAll() {
     return this.roleRepository.find({ relations: ['permissions'] });
+  }
+
+  async findByName(name: RolesTypes): Promise<Role | undefined> {
+    const role = await this.roleRepository
+      .createQueryBuilder('role')
+      .where('role.name = :name', { name })
+      .leftJoinAndSelect('role.permissions', 'permission')
+      .select([
+        'role.id',
+        'role.name',
+        'permission.name',
+      ])
+      .getOne();
+
+    if (!role) {
+      return undefined;
+    }
+
+    if (role.permissions && role.permissions.length > 0) {
+      role.permissions = role.permissions.map(permission => {
+        console.log('permission', permission.name);
+        return permission.name;
+      }) as any;
+      return role;
+    }
+
+    role.permissions = [];
+    return role;
   }
 
   findOne(id: number) {

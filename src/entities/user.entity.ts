@@ -24,10 +24,10 @@ export class User {
     this.uuid = uuidv4();
   }
 
-  @Column()
+  @Column({ nullable: true })
   account_id: number;
   
-  @ManyToOne(() => Account, (account) => account.users)
+  @ManyToOne(() => Account, (account) => account.users, { nullable: true })
   @JoinColumn({ name: 'account_id' })
   account: Account;
 

@@ -5,17 +5,28 @@ import { User } from '../../entities/user.entity';
 import { randomBytes, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';
 import { UpdateUserDto } from './dtos/update-user.dto';
-import { AccountsService } from '../accounts/accounts.service';
-import { CreateAccountDto } from '../accounts/dtos/create-account.dto';
+import { RolesTypes } from '../roles/dtos/roles-types.dto';
+import { RolesService } from '../roles/roles.service';
 
 const scrypt = promisify(_scrypt);
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectRepository(User) private repo: Repository<User>) {}
+  constructor(
+    @InjectRepository(User)
+    private repo: Repository<User>,
+    private readonly rolesService: RolesService,
+  ) {}
 
-  async create(email: string, password: string): Promise<User> {
-    const user = this.repo.create({ email, password });
+  async create(email: string, password: string, roleName: RolesTypes): Promise<User> {
+    const role = await this.rolesService.findByName(roleName);
+
+    if (!role) {
+      throw new NotFoundException('Role não encontrada');
+    }
+
+    let user = this.repo.create({ email, password, role });
+    user.role.permissions = role.permissions;
     return this.repo.save(user);
   }
 

@@ -1,0 +1,1 @@
+export type RolesTypes = 'SUPER_ADMIN' | 'ADMIN' | 'ASSISTANT' | 'HEALTHCARE_PROFESSIONAL' | 'PATIENT';
