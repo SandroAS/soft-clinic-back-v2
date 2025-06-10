@@ -10,6 +10,7 @@ import { UsersService } from '../users/users.service';
 import { AccountsService } from '../accounts/accounts.service';
 import { CreateTrialDto } from '../trials/dtos/create-trial.dto';
 import { TrialsService } from '../trials/trials.service';
+import { AuthResponseDto } from './dtos/auth-response.dto';
 
 const scrypt = promisify(_scrypt);
 
@@ -22,7 +23,7 @@ export class AuthService {
     private readonly trialsService: TrialsService,
   ) {}
 
-  async signup(email: string, password: string) {
+  async signup(email: string, password: string): Promise<{ user: AuthResponseDto; accessToken: string }> {
     const existingUsers = await this.usersService.findByEmail(email);
     if (existingUsers.length) {
       throw new BadRequestException('E-mail já está em uso, escolha outro.');
@@ -45,16 +46,17 @@ export class AuthService {
     };
     const trial = await this.trialsService.create(trialDto);
   
-    await this.accountsService.update(account.id, { last_trial_id: trial.id });
+    account = await this.accountsService.update(account.id, { last_trial_id: trial.id });
 
-    user = await this.usersService.update(user.id, { ...user, account_id: account.id });
+    await this.usersService.update(user.id, { ...user, account_id: account.id });
     account.lastTrial = trial;
     user.account = account;
 
+    const authResponse = new AuthResponseDto(user);
     const payload = { sub: user.id, email: user.email };
     const accessToken = this.jwtService.sign(payload);
 
-    return { user, accessToken };
+    return { user: authResponse, accessToken };
   }
 
   async login(email: string, password: string) {

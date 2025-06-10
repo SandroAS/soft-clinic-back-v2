@@ -30,18 +30,17 @@ export class UsersService {
     return this.repo.save(user);
   }
 
-  // async findOne(id: number, relations?: UserRelations[]) {
-  async findOne(id: number) {
+  async findOne(id: number, relations?: string[]) {
     let user: User;
 
-    // if (relations && relations.length > 0) {
-    //   user = await this.repo.findOne({
-    //     where: { id },
-    //     relations,
-    //   });
-    // }
-
-    user = await this.repo.findOneBy({ id });
+    if (relations && relations.length > 0) {
+      user = await this.repo.findOne({
+        where: { id },
+        relations,
+      });
+    } else {
+      user = await this.repo.findOneBy({ id });
+    }
 
     if (!user) {
       throw new NotFoundException('Usuário not found');
@@ -54,8 +53,8 @@ export class UsersService {
     return this.repo.find({ where: { email } });
   }
 
-  async update(id: number, body: UpdateUserDto) {
-    const user = await this.findOne(id);
+  async update(id: number, body: UpdateUserDto): Promise<User> {
+    const user = await this.findOne(id, ['account']);
 
     if (!user) {
       throw new NotFoundException('user not found');

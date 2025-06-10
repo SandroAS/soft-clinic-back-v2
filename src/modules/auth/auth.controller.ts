@@ -23,7 +23,6 @@ export class AuthController {
       body.email,
       body.password
     );
-    delete user.password;
     return { user, accessToken };
   }
 

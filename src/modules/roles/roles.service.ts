@@ -35,7 +35,6 @@ export class RolesService {
 
     if (role.permissions && role.permissions.length > 0) {
       role.permissions = role.permissions.map(permission => {
-        console.log('permission', permission.name);
         return permission.name;
       }) as any;
       return role;
