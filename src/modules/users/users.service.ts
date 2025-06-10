@@ -5,6 +5,8 @@ import { User } from '../../entities/user.entity';
 import { randomBytes, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import { AccountsService } from '../accounts/accounts.service';
+import { CreateAccountDto } from '../accounts/dtos/create-account.dto';
 
 const scrypt = promisify(_scrypt);
 
@@ -12,9 +14,8 @@ const scrypt = promisify(_scrypt);
 export class UsersService {
   constructor(@InjectRepository(User) private repo: Repository<User>) {}
 
-  create(email: string, password: string) {
+  async create(email: string, password: string): Promise<User> {
     const user = this.repo.create({ email, password });
-
     return this.repo.save(user);
   }
 

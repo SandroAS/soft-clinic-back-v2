@@ -9,7 +9,7 @@ export class RolesService {
   constructor(
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
-    private readonly permissionsService: PermissionsService,
+    private readonly permissionsService: PermissionsService
   ) {}
 
   findAll() {

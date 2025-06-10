@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
 import { TrialsService } from './trials.service';
 import { Trial } from '@/entities/trial.entity';
+import { CreateTrialDto } from './dtos/create-trial.dto';
 
 @Controller('trials')
 export class TrialsController {
@@ -17,7 +18,7 @@ export class TrialsController {
   }
 
   @Post()
-  create(@Body() data: Partial<Trial>) {
+  create(@Body() data: CreateTrialDto) {
     return this.trialsService.create(data);
   }
 

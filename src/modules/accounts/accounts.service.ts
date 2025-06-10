@@ -5,7 +5,6 @@ import { Account } from '@/entities/account.entity';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { UpdateAccountDto } from './dtos/update-account.dto';
 
-
 @Injectable()
 export class AccountsService {
   constructor(
