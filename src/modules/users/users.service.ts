@@ -34,22 +34,35 @@ export class UsersService {
 
   async findOne(id: number, relations?: string[], manager?: EntityManager) {
     const userRepository = manager ? manager.getRepository(User) : this.userRepository;
-    let user: User;
 
     if (relations && relations.length > 0) {
-      user = await userRepository.findOne({
+      return await userRepository.findOne({
         where: { id },
         relations,
       });
-    } else {
-      user = await userRepository.findOneBy({ id });
     }
 
-    return user;
+    return await userRepository.findOneBy({ id });
   }
 
-  findByEmail(email: string) {
-    return this.userRepository.find({ where: { email } });
+  async findByEmail(email: string, relations?: string[]) {
+    if (relations && relations.length > 0) {
+      let user: User;
+      user = await this.userRepository.findOne({
+        where: { email },
+        relations,
+      });
+
+      if(relations.includes('role.permissions') && user?.role?.permissions) {
+        user.role.permissions = user.role.permissions.map(permission => {
+          return permission.name;
+        }) as any;
+      }
+
+      return user;
+    }
+
+    return this.userRepository.findOne({ where: { email } });
   }
 
   async update(id: number, body: UpdateUserDto, manager?: EntityManager): Promise<User> {

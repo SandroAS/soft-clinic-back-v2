@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { randomBytes, scrypt as _scrypt } from 'crypto';
+import { randomBytes, timingSafeEqual, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';
 import AppDataSource from '@/data-source';
 import { JwtService } from '@nestjs/jwt';
@@ -13,9 +13,6 @@ import { AccountsService } from '../accounts/accounts.service';
 import { TrialsService } from '../trials/trials.service';
 import { AuthResponseDto } from './dtos/auth-response.dto';
 import { User } from '@/entities/user.entity';
-import { Account } from '@/entities/account.entity';
-import { Trial } from '@/entities/trial.entity';
-import { Role } from '@/entities/role.entity';
 import { plainToInstance } from 'class-transformer';
 
 const scrypt = promisify(_scrypt);
@@ -30,8 +27,8 @@ export class AuthService {
   ) {}
 
   async signup(email: string, password: string): Promise<{ user: AuthResponseDto; accessToken: string }> {
-    const existingUsers = await this.usersService.findByEmail(email);
-    if (existingUsers.length) {
+    const existingUser = await this.usersService.findByEmail(email);
+    if (existingUser) {
       throw new BadRequestException('E-mail já está em uso, escolha outro.');
     }
 
@@ -54,6 +51,7 @@ export class AuthService {
 
       await this.accountsService.update(account.id, { last_trial_id: trial.id }, queryRunner.manager);
 
+      delete user.password;
       await this.usersService.update(user.id, { ...user, account_id: account.id }, queryRunner.manager);
 
       await queryRunner.commitTransaction();
@@ -77,21 +75,34 @@ export class AuthService {
   }
 
   async login(email: string, password: string) {
-    const [user] = await this.usersService.findByEmail(email);
-    if (!user) {
-      throw new NotFoundException('Usuário não encontrado.');
-    }
-    const [salt, storedHash] = user.password.split('.');
+    const user = await this.usersService.findByEmail(email, ['account.lastTrial', 'role.permissions']);
 
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado ao tentar logar.');
+    }
+
+    const [salt, storedHash] = user.password.split('.');
     const hash = (await scrypt(password, salt, 32)) as Buffer;
 
     if (storedHash !== hash.toString('hex')) {
       throw new BadRequestException('Senha com formato inválido.');
     }
 
-    const payload = { email: user.email };
+    // CÓDICO COMENTADO POR QUESTÕES DE SEGURANÇA, ATIVAR SOMENTE PARA TESTES LOCAIS
+    // if (!salt || !storedHash) {
+    //   throw new BadRequestException('Senha salva com formato inválido.');
+    // }
+    // const hashedBuffer = (await scrypt(password, salt, 32)) as Buffer;
+    // const storedBuffer = Buffer.from(storedHash, 'hex');
+    // const passwordsMatch = storedBuffer.length === hashedBuffer.length && timingSafeEqual(storedBuffer, hashedBuffer);
+    // if (!passwordsMatch) {
+    //   throw new BadRequestException('Senha incorreta.');
+    // }
+
+    const authResponse = new AuthResponseDto(user);
+    const payload = { sub: user.id, email: user.email };
     const accessToken = this.jwtService.sign(payload);
 
-    return { user, accessToken };
+    return { user: authResponse, accessToken };
   }
 }
