@@ -5,6 +5,8 @@ import AppDataSource from './data-source';
 import { runSeeders } from './seeds/run-seeders';
 
 async function bootstrap() {
+  console.log('Envirement: ', process.env.NODE_ENV);
+
   await AppDataSource.initialize();
   console.log('Database connected.');
 

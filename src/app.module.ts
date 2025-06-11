@@ -22,7 +22,11 @@ const cookieSession = require('cookie-session');
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
+      envFilePath: [
+        `.env.${process.env.NODE_ENV}`,
+        '.env'
+      ]
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

@@ -3,25 +3,29 @@ import { IsEmail, IsString, IsOptional, IsNumber } from 'class-validator';
 export class UpdateUserDto {
   @IsString()
   @IsOptional()
-  name: string;
+  name?: string;
 
   @IsEmail()
   @IsOptional()
-  email: string;
+  email?: string;
 
   @IsString()
   @IsOptional()
-  cellphone: string;
+  cellphone?: string;
 
   @IsString()
   @IsOptional()
-  cpf: string;
+  cpf?: string;
 
   @IsString()
   @IsOptional()
-  password: string;
+  password?: string;
+
+  @IsString()
+  @IsOptional()
+  google_id?: string;
 
   @IsNumber()
   @IsOptional()
-  account_id: number;
+  account_id?: number;
 }

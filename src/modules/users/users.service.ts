@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../entities/user.entity';
@@ -7,7 +7,6 @@ import { promisify } from 'util';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { RolesTypes } from '../roles/dtos/roles-types.dto';
 import { RolesService } from '../roles/roles.service';
-import { Role } from '@/entities/role.entity';
 
 const scrypt = promisify(_scrypt);
 
@@ -19,7 +18,7 @@ export class UsersService {
     private readonly rolesService: RolesService,
   ) {}
 
-  async create(email: string, password: string, roleName: RolesTypes, manager?: EntityManager): Promise<User> {
+  async create(email: string, roleName: RolesTypes, password?: string, manager?: EntityManager, googleProfile?: any): Promise<User> {
     const userRepository = manager ? manager.getRepository(User) : this.userRepository;
     const role = await this.rolesService.findByName(roleName);
 
@@ -27,25 +26,38 @@ export class UsersService {
       throw new NotFoundException('Role não encontrada');
     }
 
-    let user = userRepository.create({ email, password, role });
+    let user: User;
+    if (googleProfile) {
+      user = userRepository.create({
+        email,
+        role,
+        google_id: googleProfile.id,
+        name: googleProfile.name
+      });
+    } else {
+      if (!password) {
+        throw new BadRequestException('A senha é obrigatória para cadastro sem ser por autenticação com Google.');
+      }
+      user = userRepository.create({ email, role, password });
+    }
+
     user.role.permissions = role.permissions;
+
     return userRepository.save(user);
   }
 
-  async findOne(id: number, relations?: string[], manager?: EntityManager) {
+  async findOne(id: number, relations?: string[], manager?: EntityManager): Promise<User | undefined> {
     const userRepository = manager ? manager.getRepository(User) : this.userRepository;
 
-    if (relations && relations.length > 0) {
-      return await userRepository.findOne({
-        where: { id },
-        relations,
-      });
-    }
+    const user = await userRepository.findOne({
+      where: { id },
+      relations: relations || [],
+    });
 
-    return await userRepository.findOneBy({ id });
+    return user;
   }
 
-  async findByEmail(email: string, relations?: string[]) {
+  async findByEmail(email: string, relations?: string[]): Promise<User | undefined> {
     if (relations && relations.length > 0) {
       let user: User;
       user = await this.userRepository.findOne({
@@ -62,7 +74,7 @@ export class UsersService {
       return user;
     }
 
-    return this.userRepository.findOne({ where: { email } });
+    return this.userRepository.findOne({ where: { email }, relations: relations || [] });
   }
 
   async update(id: number, body: UpdateUserDto, manager?: EntityManager): Promise<User> {

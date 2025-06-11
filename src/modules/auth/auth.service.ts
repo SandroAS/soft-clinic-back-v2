@@ -41,7 +41,7 @@ export class AuthService {
       const hashBuffer = (await scrypt(password, salt, 32)) as Buffer;
       const hashedPassword = salt + '.' + hashBuffer.toString('hex');
 
-      const user = await this.usersService.create(email, hashedPassword, 'ADMIN', queryRunner.manager);
+      const user = await this.usersService.create(email, 'ADMIN', hashedPassword, queryRunner.manager);
 
       const account = await this.accountsService.create({ admin_id: user.id }, queryRunner.manager);
 
@@ -51,8 +51,7 @@ export class AuthService {
 
       await this.accountsService.update(account.id, { last_trial_id: trial.id }, queryRunner.manager);
 
-      delete user.password;
-      await this.usersService.update(user.id, { ...user, account_id: account.id }, queryRunner.manager);
+      await this.usersService.update(user.id, { account_id: account.id }, queryRunner.manager);
 
       await queryRunner.commitTransaction();
 
@@ -84,20 +83,20 @@ export class AuthService {
     const [salt, storedHash] = user.password.split('.');
     const hash = (await scrypt(password, salt, 32)) as Buffer;
 
+    if (!salt || !storedHash) {
+      throw new BadRequestException('Senha salva com formato inválido.');
+    }
+
     if (storedHash !== hash.toString('hex')) {
       throw new BadRequestException('Senha com formato inválido.');
     }
 
-    // CÓDICO COMENTADO POR QUESTÕES DE SEGURANÇA, ATIVAR SOMENTE PARA TESTES LOCAIS
-    // if (!salt || !storedHash) {
-    //   throw new BadRequestException('Senha salva com formato inválido.');
-    // }
-    // const hashedBuffer = (await scrypt(password, salt, 32)) as Buffer;
-    // const storedBuffer = Buffer.from(storedHash, 'hex');
-    // const passwordsMatch = storedBuffer.length === hashedBuffer.length && timingSafeEqual(storedBuffer, hashedBuffer);
-    // if (!passwordsMatch) {
-    //   throw new BadRequestException('Senha incorreta.');
-    // }
+    const hashedBuffer = (await scrypt(password, salt, 32)) as Buffer;
+    const storedBuffer = Buffer.from(storedHash, 'hex');
+    const passwordsMatch = storedBuffer.length === hashedBuffer.length && timingSafeEqual(storedBuffer, hashedBuffer);
+    if (!passwordsMatch) {
+      throw new BadRequestException('Senha incorreta.');
+    }
 
     const authResponse = new AuthResponseDto(user);
     const payload = { sub: user.id, email: user.email };
