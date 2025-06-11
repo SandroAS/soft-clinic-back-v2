@@ -4,6 +4,29 @@ import { BadRequestException, Injectable, InternalServerErrorException } from '@
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth.service';
 import { UsersService } from '@/modules/users/users.service';
+import { formatFullName } from '@/common/utils/string.utils';
+
+interface GoogleProfile {
+  id: string;
+  displayName: string;
+  name: {
+    familyName: string;
+    givenName: string;
+  };
+  emails: { value: string; verified: boolean }[];
+  photos: { value: string }[];
+  provider: string;
+  _raw: string;
+  _json: {
+    sub: string;
+    name: string;
+    given_name: string;
+    family_name: string;
+    picture: string;
+    email: string;
+    email_verified: boolean;
+  };
+}
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
@@ -24,45 +47,11 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   async validate(
     accessToken: string,
     refreshToken: string,
-    profile: any,
+    profile: GoogleProfile,
     done: VerifyCallback,
   ): Promise<any> {
-    console.log('Google Profile:', profile);
-
-//     Google Profile: {
-// 2025-06-11 17:49:51 soft-clinic-nest   |   id: '103568965503549818658',
-// 2025-06-11 17:49:51 soft-clinic-nest   |   displayName: 'sandro souza',
-// 2025-06-11 17:49:51 soft-clinic-nest   |   name: { familyName: 'souza', givenName: 'sandro' },
-// 2025-06-11 17:49:51 soft-clinic-nest   |   emails: [ { value: 'sandroantoniosouza98@gmail.com', verified: true } ],
-// 2025-06-11 17:49:51 soft-clinic-nest   |   photos: [
-// 2025-06-11 17:49:51 soft-clinic-nest   |     {
-// 2025-06-11 17:49:51 soft-clinic-nest   |       value: 'https://lh3.googleusercontent.com/a/ACg8ocIkqRnlOg9uVidTP2yG1SG7DCuBWpVWIuJUTHk7MKfwE-ngPWvSXg=s96-c'
-// 2025-06-11 17:49:51 soft-clinic-nest   |     }
-// 2025-06-11 17:49:51 soft-clinic-nest   |   ],
-// 2025-06-11 17:49:51 soft-clinic-nest   |   provider: 'google',
-// 2025-06-11 17:49:51 soft-clinic-nest   |   _raw: '{\n' +
-// 2025-06-11 17:49:51 soft-clinic-nest   |     '  "sub": "103568965503549818658",\n' +
-// 2025-06-11 17:49:51 soft-clinic-nest   |     '  "name": "sandro souza",\n' +
-// 2025-06-11 17:49:51 soft-clinic-nest   |     '  "given_name": "sandro",\n' +
-// 2025-06-11 17:49:51 soft-clinic-nest   |     '  "family_name": "souza",\n' +
-// 2025-06-11 17:49:51 soft-clinic-nest   |     '  "picture": "https://lh3.googleusercontent.com/a/ACg8ocIkqRnlOg9uVidTP2yG1SG7DCuBWpVWIuJUTHk7MKfwE-ngPWvSXg\\u003ds96-c",\n' +
-// 2025-06-11 17:49:51 soft-clinic-nest   |     '  "email": "sandroantoniosouza98@gmail.com",\n' +
-// 2025-06-11 17:49:51 soft-clinic-nest   |     '  "email_verified": true\n' +
-// 2025-06-11 17:49:51 soft-clinic-nest   |     '}',
-// 2025-06-11 17:49:51 soft-clinic-nest   |   _json: {
-// 2025-06-11 17:49:51 soft-clinic-nest   |     sub: '103568965503549818658',
-// 2025-06-11 17:49:51 soft-clinic-nest   |     name: 'sandro souza',
-// 2025-06-11 17:49:51 soft-clinic-nest   |     given_name: 'sandro',
-// 2025-06-11 17:49:51 soft-clinic-nest   |     family_name: 'souza',
-// 2025-06-11 17:49:51 soft-clinic-nest   |     picture: 'https://lh3.googleusercontent.com/a/ACg8ocIkqRnlOg9uVidTP2yG1SG7DCuBWpVWIuJUTHk7MKfwE-ngPWvSXg=s96-c',
-// 2025-06-11 17:49:51 soft-clinic-nest   |     email: 'sandroantoniosouza98@gmail.com',
-// 2025-06-11 17:49:51 soft-clinic-nest   |     email_verified: true
-// 2025-06-11 17:49:51 soft-clinic-nest   |   }
-// 2025-06-11 17:49:51 soft-clinic-nest   | }
-    const { name, emails, photos, id: googleId } = profile;
-
     try {
-      const email = emails[0].value;
+      const email = profile.emails[0].value;
       let user = await this.usersService.findByEmail(email, ['account.lastTrial', 'role.permissions']);
 
       // if (user && user.google_id) {
@@ -71,18 +60,18 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 
       if (!user) {
         const googleProfile = {
-          photos,
-          email: email,
-          name: name.givenName + ' ' + name.familyName,
-          google_id: googleId,
+          email,
+          profile_img_url: profile.photos[0]?.value || null,
+          name: formatFullName(profile.displayName),
+          google_id: profile.id,
         };
         user = await this.usersService.create(email, 'ADMIN', null, null, googleProfile);
 
       } else {
         if (!user.google_id) {
           // Se o usuário existe mas ainda não tem googleId, associe (ex: se ele se registrou com email/senha antes)
-          await this.usersService.update(user.id, { google_id: googleId }, null);
-          user.google_id = googleId;
+          await this.usersService.update(user.id, { google_id: profile.id }, null);
+          user.google_id = profile.id;
         }
       }
 
