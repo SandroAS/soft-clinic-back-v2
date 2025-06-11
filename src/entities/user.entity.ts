@@ -53,6 +53,9 @@ export class User {
   @Column({ unique: true, nullable: true })
   google_id: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true, name: 'profile_image_url' })
+  profile_img_url: string;
+
   @Column({ default: true })
   is_active: boolean;
 
