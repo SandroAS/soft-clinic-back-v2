@@ -6,15 +6,17 @@ import { AuthService } from './auth.service';
 import { LoginDto } from 'src/modules/users/dtos/login.dto';
 import { User } from 'src/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { AuthResponseDto } from './dtos/auth-response.dto';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
     private readonly jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   @Get('/whoami')
@@ -51,18 +53,23 @@ export class AuthController {
   @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Req() req: Request) {
-    // Redireciona para o Google
     console.log('Redirecionando para o Google...');
   }
 
   @Get('google/redirect')
   @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@Req() req: Request) {
+  async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
     const user = req.user as User;
 
-    const payload = { sub: user.id, email: user.email };
-    const accessToken = this.jwtService.sign(payload);
+    if (user) {
+      const payload = { sub: user.id, email: user.email };
+      const accessToken = this.jwtService.sign(payload);
 
-    return { user: new AuthResponseDto(user), accessToken };
+      return res.redirect(`${this.configService.get<string>('APP_URL_FRONT')}/auth/google-auth-callback?user=${JSON.stringify(new AuthResponseDto(user))}&token=${accessToken}`);
+    }
+
+    // Caso não haja usuário (erro na estratégia, etc.)
+    console.error('Erro na autenticação Google: Usuário não encontrado após redirecionamento.');
+    return res.redirect(`${this.configService.get<string>('APP_URL')}/auth/login?error=google_auth_failed`);
   }
 }

@@ -4,7 +4,6 @@ import { BadRequestException, Injectable, InternalServerErrorException } from '@
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth.service';
 import { UsersService } from '@/modules/users/users.service';
-import { UpdateUserDto } from '@/modules/users/dtos/update-user.dto';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
@@ -29,11 +28,42 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done: VerifyCallback,
   ): Promise<any> {
     console.log('Google Profile:', profile);
+
+//     Google Profile: {
+// 2025-06-11 17:49:51 soft-clinic-nest   |   id: '103568965503549818658',
+// 2025-06-11 17:49:51 soft-clinic-nest   |   displayName: 'sandro souza',
+// 2025-06-11 17:49:51 soft-clinic-nest   |   name: { familyName: 'souza', givenName: 'sandro' },
+// 2025-06-11 17:49:51 soft-clinic-nest   |   emails: [ { value: 'sandroantoniosouza98@gmail.com', verified: true } ],
+// 2025-06-11 17:49:51 soft-clinic-nest   |   photos: [
+// 2025-06-11 17:49:51 soft-clinic-nest   |     {
+// 2025-06-11 17:49:51 soft-clinic-nest   |       value: 'https://lh3.googleusercontent.com/a/ACg8ocIkqRnlOg9uVidTP2yG1SG7DCuBWpVWIuJUTHk7MKfwE-ngPWvSXg=s96-c'
+// 2025-06-11 17:49:51 soft-clinic-nest   |     }
+// 2025-06-11 17:49:51 soft-clinic-nest   |   ],
+// 2025-06-11 17:49:51 soft-clinic-nest   |   provider: 'google',
+// 2025-06-11 17:49:51 soft-clinic-nest   |   _raw: '{\n' +
+// 2025-06-11 17:49:51 soft-clinic-nest   |     '  "sub": "103568965503549818658",\n' +
+// 2025-06-11 17:49:51 soft-clinic-nest   |     '  "name": "sandro souza",\n' +
+// 2025-06-11 17:49:51 soft-clinic-nest   |     '  "given_name": "sandro",\n' +
+// 2025-06-11 17:49:51 soft-clinic-nest   |     '  "family_name": "souza",\n' +
+// 2025-06-11 17:49:51 soft-clinic-nest   |     '  "picture": "https://lh3.googleusercontent.com/a/ACg8ocIkqRnlOg9uVidTP2yG1SG7DCuBWpVWIuJUTHk7MKfwE-ngPWvSXg\\u003ds96-c",\n' +
+// 2025-06-11 17:49:51 soft-clinic-nest   |     '  "email": "sandroantoniosouza98@gmail.com",\n' +
+// 2025-06-11 17:49:51 soft-clinic-nest   |     '  "email_verified": true\n' +
+// 2025-06-11 17:49:51 soft-clinic-nest   |     '}',
+// 2025-06-11 17:49:51 soft-clinic-nest   |   _json: {
+// 2025-06-11 17:49:51 soft-clinic-nest   |     sub: '103568965503549818658',
+// 2025-06-11 17:49:51 soft-clinic-nest   |     name: 'sandro souza',
+// 2025-06-11 17:49:51 soft-clinic-nest   |     given_name: 'sandro',
+// 2025-06-11 17:49:51 soft-clinic-nest   |     family_name: 'souza',
+// 2025-06-11 17:49:51 soft-clinic-nest   |     picture: 'https://lh3.googleusercontent.com/a/ACg8ocIkqRnlOg9uVidTP2yG1SG7DCuBWpVWIuJUTHk7MKfwE-ngPWvSXg=s96-c',
+// 2025-06-11 17:49:51 soft-clinic-nest   |     email: 'sandroantoniosouza98@gmail.com',
+// 2025-06-11 17:49:51 soft-clinic-nest   |     email_verified: true
+// 2025-06-11 17:49:51 soft-clinic-nest   |   }
+// 2025-06-11 17:49:51 soft-clinic-nest   | }
     const { name, emails, photos, id: googleId } = profile;
 
     try {
       const email = emails[0].value;
-      let user = await this.usersService.findByEmail(email);
+      let user = await this.usersService.findByEmail(email, ['account.lastTrial', 'role.permissions']);
 
       // if (user && user.google_id) {
       //   throw new BadRequestException('E-mail já está em uso e já foi autenticado com o google, escolha outro.');
