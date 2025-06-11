@@ -46,9 +46,12 @@ export class User {
   @Column({ type: 'enum', enum: Gender, nullable: true })
   gender: Gender | null;
 
-  @Column()
+  @Column({ nullable: true })
   @Exclude()
   password: string;
+
+  @Column({ unique: true, nullable: true })
+  google_id: string;
 
   @Column({ default: true })
   is_active: boolean;
