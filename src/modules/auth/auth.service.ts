@@ -15,8 +15,8 @@ import { AuthResponseDto } from './dtos/auth-response.dto';
 import { User } from '@/entities/user.entity';
 import { plainToInstance } from 'class-transformer';
 import { GoogleProfileParsed } from './dtos/google-profile-parsed.dta';
-import e from 'express';
 import { AuthSignupDto } from './dtos/auth-signup';
+import { UserMetasService } from '../user-metas/user-metas.service';
 
 const scrypt = promisify(_scrypt);
 
@@ -27,6 +27,7 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly accountsService: AccountsService,
     private readonly trialsService: TrialsService,
+    private readonly userMetasService: UserMetasService,
   ) {}
 
   async whoami(userId: number): Promise<AuthResponseDto> {
@@ -60,7 +61,13 @@ export class AuthService {
         controllerProfile.password = salt + '.' + hashBuffer.toString('hex');
 
         user = await this.usersService.create('ADMIN', controllerProfile, null, queryRunner.manager);
-      } else if (!controllerProfile && googleProfile) {
+
+        if(controllerProfile.termsAccepted) {
+          this.userMetasService.create(user.id, 'TERMS_OF_SERVICE', 'ACCEPTED', 'v1.0.0');
+          this.userMetasService.create(user.id, 'PRIVACY_POLICIES', 'ACCEPTED', 'v1.0.0');
+        }
+
+      } else {
         user = await this.usersService.create('ADMIN', null, googleProfile, queryRunner.manager);
       }
 

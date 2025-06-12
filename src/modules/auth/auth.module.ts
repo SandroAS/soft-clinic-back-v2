@@ -9,6 +9,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AccountsModule } from '../accounts/accounts.module';
 import { TrialsModule } from '../trials/trials.module';
 import { PassportModule } from '@nestjs/passport';
+import { UserMetasModule } from '../user-metas/user-metas.module';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { PassportModule } from '@nestjs/passport';
     UsersModule,
     AccountsModule,
     TrialsModule,
-    PassportModule
+    PassportModule,
+    UserMetasModule
   ],
   providers: [AuthService, JwtStrategy, GoogleStrategy],
   exports: [AuthService],
