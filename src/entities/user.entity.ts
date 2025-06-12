@@ -5,6 +5,7 @@ import { Account } from './account.entity';
 import { PaymentIntention } from './payment-intention.entity';
 import { Sale } from './sale.entity';
 import { Role } from './role.entity';
+import { UserMeta } from './user-meta.entity';
 
 export enum Gender {
   MALE = 'MALE',
@@ -71,6 +72,9 @@ export class User {
   @ManyToOne(() => Role, role => role.users)
   @JoinColumn({ name: 'role_id' })
   role: Role;
+
+  @OneToMany(() => UserMeta, (userMeta) => userMeta.user)
+  userMetas: UserMeta[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

@@ -84,6 +84,14 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 
+## Dicas Rápidas Nest.js
+
+Comando para criar module, service, controller. Exemplo:
+```sh
+nest g module modules/roles
+nest g service modules/roles
+nest g controller modules/roles
+```
 
 ## 🐋 Rodando com Docker
 Este projeto possui dois ambientes configurados com Docker: Desenvolvimento e Produção. Ambos utilizam docker-compose com MySQL e MinIO.

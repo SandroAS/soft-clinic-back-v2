@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Req, Res, Session, UseGuards } from '@nestjs/common';
-import { JwtSessionGuard } from './guards/jwt-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from 'src/modules/users/decorators/current-user.decorator';
 import { CreateUserDto } from 'src/modules/users/dtos/create-user.dto';
 import { AuthService } from './auth.service';
@@ -18,7 +18,7 @@ export class AuthController {
   ) {}
 
   @Get('/whoami')
-  @UseGuards(JwtSessionGuard)
+  @UseGuards(JwtAuthGuard)
   whoAmI(@CurrentUser() user: User) {
     return this.authService.whoami(user.id);
   }
