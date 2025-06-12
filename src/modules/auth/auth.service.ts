@@ -31,7 +31,7 @@ export class AuthService {
   ) {}
 
   async whoami(userId: number): Promise<AuthResponseDto> {
-    const user = await this.usersService.findOne(userId, ['account.lastTrial', 'role.permissions']);
+    const user = await this.usersService.findOne(userId, ['account.lastTrial', 'account.systemModules', 'role.permissions']);
     if (!user) {
       throw new NotFoundException('Usuário não encontrado.');
     }
@@ -102,7 +102,7 @@ export class AuthService {
   }
 
   async login(email: string, password?: string, googleProfile?: GoogleProfileParsed): Promise<{ user: AuthResponseDto; accessToken: string }> {
-    const user = await this.usersService.findByEmail(email, ['account.lastTrial', 'role.permissions']);
+    const user = await this.usersService.findByEmail(email, ['account.lastTrial', 'account.systemModules', 'role.permissions']);
 
     if (!user) {
       throw new NotFoundException('Usuário não encontrado ao tentar logar.');
