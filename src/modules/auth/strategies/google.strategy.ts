@@ -1,6 +1,6 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth.service';
 import { UsersService } from '@/modules/users/users.service';
@@ -36,16 +36,11 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       const email = profile.emails[0].value;
       let userFoundByEmail = await this.usersService.findByEmail(email, ['account.lastTrial', 'role.permissions']);
 
-      // if (userFoundByEmail && userFoundByEmail.google_id) {
-      //   throw new BadRequestException('E-mail já está em uso e já foi autenticado com o google, escolha outro.');
-      // }
-
       const googleProfile: GoogleProfileParsed = {
         google_id: profile.id,
         email,
         name: formatFullName(profile.displayName),
         profile_img_url: profile.photos[0]?.value || null,
-        accessToken
       };
 
       if (!userFoundByEmail) {

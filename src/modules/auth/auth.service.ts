@@ -72,14 +72,8 @@ export class AuthService {
       });
 
       const authResponse = new AuthResponseDto(authUser);
-
-      let accessToken: string;
-      if(googleProfile?.accessToken) {
-        accessToken = googleProfile.accessToken;
-      } else {
-        const payload = { sub: authUser.id, email: authUser.email };
-        accessToken = this.jwtService.sign(payload);
-      }
+      const payload = { sub: authUser.id, email: authUser.email };
+      const accessToken = this.jwtService.sign(payload);
 
       return { user: authResponse, accessToken };
     } catch (err) {
@@ -101,10 +95,7 @@ export class AuthService {
       throw new BadRequestException('Senha ou perfil do Google são obrigatórios para logar.');
     }
 
-    let accessToken: string;
-    if (googleProfile?.accessToken) {
-      accessToken = googleProfile.accessToken;
-    } else {
+    if (password) {
       const [salt, storedHash] = user.password.split('.');
       const hash = (await scrypt(password, salt, 32)) as Buffer;
   
@@ -122,10 +113,10 @@ export class AuthService {
       if (!passwordsMatch) {
         throw new BadRequestException('Senha incorreta.');
       }
-
-      const payload = { sub: user.id, email: user.email };
-      accessToken = this.jwtService.sign(payload);
     }
+
+    const payload = { sub: user.id, email: user.email };
+    const accessToken = this.jwtService.sign(payload);
 
     const authResponse = new AuthResponseDto(user);
 
