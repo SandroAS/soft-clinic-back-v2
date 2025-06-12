@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { User } from '@/entities/user.entity';
 import { UserMeta } from '@/entities/user-meta.entity';
 
@@ -24,17 +24,19 @@ export class UserMetasService {
     key: string,
     value: string,
     description: string,
+    manager?: EntityManager
   ): Promise<UserMeta> {
     const user_id = typeof user === 'number' ? user : user.id;
-
-    const userMeta = this.userMetaRepository.create({
+    const userMetaRepository = manager ? manager.getRepository(UserMeta) : this.userMetaRepository;
+    
+    const userMeta = userMetaRepository.create({
       user_id,
       key,
       value,
       description,
     });
 
-    return this.userMetaRepository.save(userMeta);
+    return userMetaRepository.save(userMeta);
   }
 
   /**

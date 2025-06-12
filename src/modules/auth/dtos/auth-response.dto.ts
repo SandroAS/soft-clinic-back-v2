@@ -1,8 +1,8 @@
-// src/common/dtos/auth-response.dto.ts
 import { Expose, Type } from 'class-transformer';
-import { User } from '@/entities/user.entity'; // A entidade bruta, usada para construir o DTO
+import { User } from '@/entities/user.entity';
 import { RoleResponseDto } from '@/modules/roles/dtos/role-response.dto';
 import { AccountResponseDto } from '@/modules/accounts/dtos/account-response.dto';
+import { UserMetasResponseDto } from '@/modules/user-metas/dtos/user-metas-response.dto';
 
 export class AuthResponseDto {
   @Expose()
@@ -34,6 +34,10 @@ export class AuthResponseDto {
   @Type(() => AccountResponseDto)
   account: AccountResponseDto;
 
+  @Expose()
+  @Type(() => UserMetasResponseDto)
+  userMetas: UserMetasResponseDto[];
+
   constructor(partial: Partial<User>) {
     this.uuid = partial.uuid;
     this.name = partial.name;
@@ -44,6 +48,7 @@ export class AuthResponseDto {
     this.is_active = partial.is_active;
     this.role = null;
     this.account = null;
+    this.userMetas = [];
 
     if (partial.role) {
       this.role = new RoleResponseDto(partial.role);
@@ -51,6 +56,12 @@ export class AuthResponseDto {
 
     if (partial.account) {
       this.account = new AccountResponseDto(partial.account);
+    }
+
+    if (partial.userMetas && partial.userMetas.length > 0) {
+      this.userMetas = partial.userMetas.map(
+        (userMeta) => new UserMetasResponseDto(userMeta)
+      );
     }
   }
 }

@@ -31,7 +31,7 @@ export class AuthService {
   ) {}
 
   async whoami(userId: number): Promise<AuthResponseDto> {
-    const user = await this.usersService.findOne(userId, ['account.lastTrial', 'account.systemModules', 'role.permissions']);
+    const user = await this.usersService.findOne(userId, ['account.lastTrial', 'account.systemModules', 'role.permissions', 'userMetas']);
     if (!user) {
       throw new NotFoundException('Usuário não encontrado.');
     }
@@ -63,8 +63,9 @@ export class AuthService {
         user = await this.usersService.create('ADMIN', controllerProfile, null, queryRunner.manager);
 
         if(controllerProfile.termsAccepted) {
-          this.userMetasService.create(user.id, 'TERMS_OF_SERVICE', 'ACCEPTED', 'v1.0.0');
-          this.userMetasService.create(user.id, 'PRIVACY_POLICIES', 'ACCEPTED', 'v1.0.0');
+          const termsOfService = await this.userMetasService.create(user.id, 'TERMS_OF_SERVICE', 'ACCEPTED', 'v1.0.0', queryRunner.manager);
+          const privacyPolicies = await this.userMetasService.create(user.id, 'PRIVACY_POLICIES', 'ACCEPTED', 'v1.0.0', queryRunner.manager);
+          user.userMetas = [termsOfService, privacyPolicies]
         }
 
       } else {
@@ -102,7 +103,7 @@ export class AuthService {
   }
 
   async login(email: string, password?: string, googleProfile?: GoogleProfileParsed): Promise<{ user: AuthResponseDto; accessToken: string }> {
-    const user = await this.usersService.findByEmail(email, ['account.lastTrial', 'account.systemModules', 'role.permissions']);
+    const user = await this.usersService.findByEmail(email, ['account.lastTrial', 'account.systemModules', 'role.permissions', 'userMetas']);
 
     if (!user) {
       throw new NotFoundException('Usuário não encontrado ao tentar logar.');
