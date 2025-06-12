@@ -28,7 +28,7 @@ export class AccountsService {
     account.systemModules.push(dentistryModule);
 
     const savedAccount = await accountRepository.save(account);
-
+    savedAccount.systemModules = account.systemModules;
     return savedAccount;
   }
 
