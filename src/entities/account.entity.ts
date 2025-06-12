@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn, ManyToOne, BeforeInsert } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn, ManyToOne, BeforeInsert, ManyToMany, JoinTable } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from './user.entity';
 import { Plan } from './plan.entity';
@@ -6,6 +6,7 @@ import { Subscription } from './subscription.entity';
 import { Trial } from './trial.entity';
 import { PaymentIntention } from './payment-intention.entity';
 import { Sale } from './sale.entity';
+import { SystemModule } from './system-module.entity';
 
 @Entity('accounts')
 export class Account {
@@ -65,6 +66,20 @@ export class Account {
 
   @OneToMany(() => PaymentIntention, intention => intention.account)
   paymentIntentions: PaymentIntention[];
+
+  @ManyToMany(() => SystemModule, (systemModule) => systemModule.accounts)
+  @JoinTable({
+    name: 'account_has_system_modules',
+    joinColumn: {
+      name: 'account_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'system_module_id',
+      referencedColumnName: 'id',
+    },
+  })
+  systemModules: SystemModule[]; 
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
