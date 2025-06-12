@@ -40,13 +40,13 @@ export class AuthService {
   }
 
   async signup(controllerProfile?: AuthSignupDto, googleProfile?: GoogleProfileParsed): Promise<{ user: AuthResponseDto; accessToken: string }> {
-    const existingUser = await this.usersService.findByEmail(controllerProfile.email);
-    if (existingUser) {
-      throw new BadRequestException('E-mail já está em uso, escolha outro.');
-    }
-
     if (!controllerProfile && !googleProfile) {
       throw new BadRequestException('Senha ou perfil do Google são obrigatórios para cadastro.');
+    }
+
+    const existingUser = await this.usersService.findByEmail(controllerProfile?.email || googleProfile?.email);
+    if (existingUser) {
+      throw new BadRequestException('E-mail já está em uso, escolha outro.');
     }
 
     const queryRunner = AppDataSource.createQueryRunner();
