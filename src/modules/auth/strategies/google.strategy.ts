@@ -5,28 +5,8 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth.service';
 import { UsersService } from '@/modules/users/users.service';
 import { formatFullName } from '@/common/utils/string.utils';
-
-interface GoogleProfile {
-  id: string;
-  displayName: string;
-  name: {
-    familyName: string;
-    givenName: string;
-  };
-  emails: { value: string; verified: boolean }[];
-  photos: { value: string }[];
-  provider: string;
-  _raw: string;
-  _json: {
-    sub: string;
-    name: string;
-    given_name: string;
-    family_name: string;
-    picture: string;
-    email: string;
-    email_verified: boolean;
-  };
-}
+import { GoogleProfile } from '../dtos/google-profile.dta';
+import { GoogleProfileParsed } from '../dtos/google-profile-parsed.dta';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
@@ -48,36 +28,44 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     accessToken: string,
     refreshToken: string,
     profile: GoogleProfile,
+    // `done` é o callback do Passport. Primeiro argumento é o erro (null se não houver),
+    // segundo é o objeto do usuário que será anexado ao `req.user`, esse "user" é uma chave reservada do objeto "req".
     done: VerifyCallback,
   ): Promise<any> {
     try {
       const email = profile.emails[0].value;
-      let user = await this.usersService.findByEmail(email, ['account.lastTrial', 'role.permissions']);
+      let userFoundByEmail = await this.usersService.findByEmail(email, ['account.lastTrial', 'role.permissions']);
 
-      // if (user && user.google_id) {
+      // if (userFoundByEmail && userFoundByEmail.google_id) {
       //   throw new BadRequestException('E-mail já está em uso e já foi autenticado com o google, escolha outro.');
       // }
 
-      if (!user) {
-        const googleProfile = {
-          email,
-          profile_img_url: profile.photos[0]?.value || null,
-          name: formatFullName(profile.displayName),
-          google_id: profile.id,
-        };
-        user = await this.usersService.create(email, 'ADMIN', null, null, googleProfile);
+      const googleProfile: GoogleProfileParsed = {
+        google_id: profile.id,
+        email,
+        name: formatFullName(profile.displayName),
+        profile_img_url: profile.photos[0]?.value || null,
+        accessToken
+      };
 
+      if (!userFoundByEmail) {
+        const { user, accessToken } = await this.authService.signup(email, null, googleProfile);
+        done(null, { user, accessToken });
       } else {
-        if (!user.google_id) {
-          // Se o usuário existe mas ainda não tem googleId, associe (ex: se ele se registrou com email/senha antes)
-          await this.usersService.update(user.id, { google_id: profile.id }, null);
-          user.google_id = profile.id;
+        if (!userFoundByEmail.google_id) {
+          // Se o usuário existe mas ainda não tem googleId, associa (ex: se ele se registrou com email/senha antes)
+          await this.usersService.update(userFoundByEmail.id, {
+            google_id: profile.id,
+            profile_img_url: userFoundByEmail.profile_img_url || googleProfile.profile_img_url
+          }, null);
+          userFoundByEmail.google_id = profile.id;
+          userFoundByEmail.profile_img_url = userFoundByEmail.profile_img_url || googleProfile.profile_img_url;
         }
+
+        const { user, accessToken } = await this.authService.login(email, null, googleProfile);
+        done(null, { user, accessToken });
       }
 
-      // `done` é o callback do Passport. Primeiro argumento é o erro (null se não houver),
-      // segundo é o objeto do usuário que será anexado ao `req.user`.
-      done(null, user);
 
     } catch (err) {
       console.error('Erro na estratégia Google:', err);

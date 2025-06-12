@@ -7,6 +7,7 @@ import { promisify } from 'util';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { RolesTypes } from '../roles/dtos/roles-types.dto';
 import { RolesService } from '../roles/roles.service';
+import { GoogleProfileParsed } from '../auth/dtos/google-profile-parsed.dta';
 
 const scrypt = promisify(_scrypt);
 
@@ -18,7 +19,7 @@ export class UsersService {
     private readonly rolesService: RolesService,
   ) {}
 
-  async create(email: string, roleName: RolesTypes, password?: string, manager?: EntityManager, googleProfile?: any): Promise<User> {
+  async create(email: string, roleName: RolesTypes, password?: string, manager?: EntityManager, googleProfile?: GoogleProfileParsed): Promise<User> {
     const userRepository = manager ? manager.getRepository(User) : this.userRepository;
     const role = await this.rolesService.findByName(roleName);
 
@@ -28,12 +29,8 @@ export class UsersService {
 
     let user: User;
     if (googleProfile) {
-      user = userRepository.create({
-        email,
-        role,
-        google_id: googleProfile.id,
-        name: googleProfile.name
-      });
+      const { google_id, email, name, profile_img_url } = googleProfile;
+      user = userRepository.create({ email, role, google_id, name, profile_img_url });
     } else {
       if (!password) {
         throw new BadRequestException('A senha é obrigatória para cadastro sem ser por autenticação com Google.');

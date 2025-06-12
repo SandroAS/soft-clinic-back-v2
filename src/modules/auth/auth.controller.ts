@@ -59,17 +59,13 @@ export class AuthController {
   @Get('google/redirect')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
-    const user = req.user as User;
+    const { user, accessToken } = req.user as { user: AuthResponseDto, accessToken: string };
 
-    if (user) {
-      const payload = { sub: user.id, email: user.email };
-      const accessToken = this.jwtService.sign(payload);
-
-      return res.redirect(`${this.configService.get<string>('APP_URL_FRONT')}/auth/google-auth-callback?user=${JSON.stringify(new AuthResponseDto(user))}&token=${accessToken}`);
+    if (user && accessToken) {
+      return res.redirect(`${this.configService.get<string>('APP_URL_FRONT')}/auth/google-auth-callback?user=${user}&token=${accessToken}`);
     }
 
-    // Caso não haja usuário (erro na estratégia, etc.)
-    console.error('Erro na autenticação Google: Usuário não encontrado após redirecionamento.');
-    return res.redirect(`${this.configService.get<string>('APP_URL')}/auth/login?error=google_auth_failed`);
+    console.error('Erro na autenticação Google: Usuário ou accessToken não encontrado após redirecionamento.');
+    return res.redirect(`${this.configService.get<string>('APP_URL_FRONT')}/auth/login?error=google_auth_failed`);
   }
 }
