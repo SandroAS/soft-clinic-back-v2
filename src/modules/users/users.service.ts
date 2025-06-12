@@ -46,12 +46,23 @@ export class UsersService {
   async findOne(id: number, relations?: string[], manager?: EntityManager): Promise<User | undefined> {
     const userRepository = manager ? manager.getRepository(User) : this.userRepository;
 
-    const user = await userRepository.findOne({
-      where: { id },
-      relations: relations || [],
-    });
+    if (relations && relations.length > 0) {
+      let user: User;
+      user = await userRepository.findOne({
+        where: { id },
+        relations,
+      });
 
-    return user;
+      if(relations.includes('role.permissions') && user?.role?.permissions) {
+        user.role.permissions = user.role.permissions.map(permission => {
+          return permission.name;
+        }) as any;
+      }
+
+      return user;
+    }
+
+    return await userRepository.findOne({ where: { id }, relations: relations || [] });
   }
 
   async findByEmail(email: string, relations?: string[]): Promise<User | undefined> {
@@ -77,7 +88,7 @@ export class UsersService {
   async update(id: number, body: UpdateUserDto, manager?: EntityManager): Promise<User> {
     const userRepository = manager ? manager.getRepository(User) : this.userRepository;
     const user = await this.findOne(id, ['account'], manager);
-
+    console.log('user', id);
     if (!user) {
       throw new NotFoundException('Usuário não encontrado ao tentar atualizar.');
     }

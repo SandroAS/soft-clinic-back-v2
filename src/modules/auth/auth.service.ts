@@ -28,6 +28,15 @@ export class AuthService {
     private readonly trialsService: TrialsService,
   ) {}
 
+  async whoami(userId: number): Promise<AuthResponseDto> {
+    const user = await this.usersService.findOne(userId, ['account.lastTrial', 'role.permissions']);
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado.');
+    }
+    const authResponse = new AuthResponseDto(user);
+    return authResponse;
+  }
+
   async signup(email: string, password?: string, googleProfile?: GoogleProfileParsed): Promise<{ user: AuthResponseDto; accessToken: string }> {
     const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {

@@ -8,22 +8,19 @@ import { User } from 'src/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { AuthResponseDto } from './dtos/auth-response.dto';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private readonly jwtService: JwtService,
     private configService: ConfigService,
   ) {}
 
   @Get('/whoami')
   @UseGuards(JwtSessionGuard)
   whoAmI(@CurrentUser() user: User) {
-    const { password, ...safeUser } = user;
-    return safeUser;
+    return this.authService.whoami(user.id);
   }
 
   @Post('/signup')
