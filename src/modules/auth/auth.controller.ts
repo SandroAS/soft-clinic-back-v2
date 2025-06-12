@@ -62,7 +62,7 @@ export class AuthController {
     const { user, accessToken } = req.user as { user: AuthResponseDto, accessToken: string };
 
     if (user && accessToken) {
-      return res.redirect(`${this.configService.get<string>('APP_URL_FRONT')}/auth/google-auth-callback?user=${user}&token=${accessToken}`);
+      return res.redirect(`${this.configService.get<string>('APP_URL_FRONT')}/auth/google-auth-callback?token=${accessToken}`);
     }
 
     console.error('Erro na autenticação Google: Usuário ou accessToken não encontrado após redirecionamento.');
