@@ -8,6 +8,7 @@ import { UpdateUserDto } from './dtos/update-user.dto';
 import { RolesTypes } from '../roles/dtos/roles-types.dto';
 import { RolesService } from '../roles/roles.service';
 import { GoogleProfileParsed } from '../auth/dtos/google-profile-parsed.dta';
+import { AuthSignupDto } from '../auth/dtos/auth-signup';
 
 const scrypt = promisify(_scrypt);
 
@@ -19,7 +20,7 @@ export class UsersService {
     private readonly rolesService: RolesService,
   ) {}
 
-  async create(email: string, roleName: RolesTypes, password?: string, manager?: EntityManager, googleProfile?: GoogleProfileParsed): Promise<User> {
+  async create(roleName: RolesTypes, controllerProfile?: AuthSignupDto, googleProfile?: GoogleProfileParsed, manager?: EntityManager): Promise<User> {
     const userRepository = manager ? manager.getRepository(User) : this.userRepository;
     const role = await this.rolesService.findByName(roleName);
 
@@ -30,12 +31,13 @@ export class UsersService {
     let user: User;
     if (googleProfile) {
       const { google_id, email, name, profile_img_url } = googleProfile;
-      user = userRepository.create({ email, role, google_id, name, profile_img_url });
+      user = userRepository.create({ role, email, google_id, name, profile_img_url });
     } else {
-      if (!password) {
+      if (!controllerProfile) {
         throw new BadRequestException('A senha é obrigatória para cadastro sem ser por autenticação com Google.');
       }
-      user = userRepository.create({ email, role, password });
+      const { email, password, name, cellphone, cpf } = controllerProfile;
+      user = userRepository.create({ role, email, password, name, cellphone, cpf });
     }
 
     user.role.permissions = role.permissions;

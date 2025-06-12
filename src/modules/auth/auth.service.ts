@@ -16,6 +16,7 @@ import { User } from '@/entities/user.entity';
 import { plainToInstance } from 'class-transformer';
 import { GoogleProfileParsed } from './dtos/google-profile-parsed.dta';
 import e from 'express';
+import { AuthSignupDto } from './dtos/auth-signup';
 
 const scrypt = promisify(_scrypt);
 
@@ -37,13 +38,13 @@ export class AuthService {
     return authResponse;
   }
 
-  async signup(email: string, password?: string, googleProfile?: GoogleProfileParsed): Promise<{ user: AuthResponseDto; accessToken: string }> {
-    const existingUser = await this.usersService.findByEmail(email);
+  async signup(controllerProfile?: AuthSignupDto, googleProfile?: GoogleProfileParsed): Promise<{ user: AuthResponseDto; accessToken: string }> {
+    const existingUser = await this.usersService.findByEmail(controllerProfile.email);
     if (existingUser) {
       throw new BadRequestException('E-mail já está em uso, escolha outro.');
     }
 
-    if (!password && !googleProfile) {
+    if (!controllerProfile && !googleProfile) {
       throw new BadRequestException('Senha ou perfil do Google são obrigatórios para cadastro.');
     }
 
@@ -53,14 +54,14 @@ export class AuthService {
 
     try {
       let user: User;
-      if (password && !googleProfile) {
+      if (controllerProfile && !googleProfile) {
         const salt = randomBytes(8).toString('hex');
-        const hashBuffer = (await scrypt(password, salt, 32)) as Buffer;
-        const hashedPassword = salt + '.' + hashBuffer.toString('hex');
+        const hashBuffer = (await scrypt(controllerProfile.password, salt, 32)) as Buffer;
+        controllerProfile.password = salt + '.' + hashBuffer.toString('hex');
 
-        user = await this.usersService.create(email, 'ADMIN', hashedPassword, queryRunner.manager);
-      } else if (!password && googleProfile) {
-        user = await this.usersService.create(email, 'ADMIN', null, queryRunner.manager, googleProfile);
+        user = await this.usersService.create('ADMIN', controllerProfile, null, queryRunner.manager);
+      } else if (!controllerProfile && googleProfile) {
+        user = await this.usersService.create('ADMIN', null, googleProfile, queryRunner.manager);
       }
 
       const account = await this.accountsService.create({ admin_id: user.id }, queryRunner.manager);

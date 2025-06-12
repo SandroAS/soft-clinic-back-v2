@@ -9,6 +9,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { AuthResponseDto } from './dtos/auth-response.dto';
 import { ConfigService } from '@nestjs/config';
+import { AuthSignupDto } from './dtos/auth-signup';
 
 @Controller('auth')
 export class AuthController {
@@ -24,11 +25,8 @@ export class AuthController {
   }
 
   @Post('/signup')
-  async createUser(@Body() body: CreateUserDto) {
-    const { user, accessToken } = await this.authService.signup(
-      body.email,
-      body.password
-    );
+  async createUser(@Body() body: AuthSignupDto) {
+    const { user, accessToken } = await this.authService.signup(body);
     return { user, accessToken };
   }
 

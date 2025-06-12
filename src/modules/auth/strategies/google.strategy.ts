@@ -44,7 +44,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       };
 
       if (!userFoundByEmail) {
-        const { user, accessToken } = await this.authService.signup(email, null, googleProfile);
+        const { user, accessToken } = await this.authService.signup(null, googleProfile);
         done(null, { user, accessToken });
       } else {
         if (!userFoundByEmail.google_id) {
