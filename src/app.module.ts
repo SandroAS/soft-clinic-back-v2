@@ -17,6 +17,7 @@ import { PaymentIntentionsModule } from './modules/payment-intentions/payment-in
 import { AttemptChargesModule } from './modules/attempt-charges/attempt-charges.module';
 import { SalesModule } from './modules/sales/sales.module';
 import { UserMetasModule } from './modules/user-metas/user-metas.module';
+import { SystemModulesModule } from './modules/system-modules/system-modules.module';
 
 const cookieSession = require('cookie-session');
 
@@ -55,7 +56,8 @@ const cookieSession = require('cookie-session');
     PaymentIntentionsModule,
     AttemptChargesModule,
     SalesModule,
-    UserMetasModule
+    UserMetasModule,
+    SystemModulesModule
   ],
   controllers: [AppController],
   providers: [
