@@ -1,21 +1,35 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { Account } from '@/entities/account.entity';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { UpdateAccountDto } from './dtos/update-account.dto';
+import { SystemModulesService } from '../system-modules/system-modules.service';
+import { SystemModuleName } from '@/entities/system-module.entity';
 
 @Injectable()
 export class AccountsService {
   constructor(
     @InjectRepository(Account)
     private readonly accountRepository: Repository<Account>,
+    private readonly systemModuleService: SystemModulesService
   ) {}
 
   async create(data: CreateAccountDto, manager?: EntityManager): Promise<Account> {
     const accountRepository = manager ? manager.getRepository(Account) : this.accountRepository;
+
+    const dentistryModule = await this.systemModuleService.findOneByName(SystemModuleName.DENTISTRY);
+    if (!dentistryModule) {
+      throw new NotFoundException(`Módulo do Sistema ${SystemModuleName.DENTISTRY} não encontrado.`);
+    }
+
     const account = accountRepository.create(data);
-    return accountRepository.save(account);
+    account.systemModules = account.systemModules || [];
+    account.systemModules.push(dentistryModule);
+
+    const savedAccount = await accountRepository.save(account);
+
+    return savedAccount;
   }
 
   async findAll(): Promise<Account[]> {

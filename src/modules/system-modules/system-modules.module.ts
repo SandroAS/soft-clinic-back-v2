@@ -10,4 +10,4 @@ import { SystemModulesController } from './system-modules.controller';
   controllers: [SystemModulesController],
   exports: [SystemModulesService],
 })
-export class SystemModuleModule {}
+export class SystemModulesModule {}
