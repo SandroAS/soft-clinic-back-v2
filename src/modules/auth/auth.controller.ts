@@ -10,6 +10,7 @@ import { Request, Response } from 'express';
 import { AuthResponseDto } from './dtos/auth-response.dto';
 import { ConfigService } from '@nestjs/config';
 import { AuthSignupDto } from './dtos/auth-signup';
+import { UserMetasResponseDto } from '../user-metas/dtos/user-metas-response.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -62,5 +63,11 @@ export class AuthController {
 
     console.error('Erro na autenticação Google: Usuário ou accessToken não encontrado após redirecionamento.');
     return res.redirect(`${this.configService.get<string>('APP_URL_FRONT')}/auth/login?error=google_auth_failed`);
+  }
+
+  @Post('/terms-accepted')
+  async termsAccepted(@Body() body: { userUuid: string }) {
+    const userMetas: UserMetasResponseDto[] = await this.authService.termsAccepted(body.userUuid);
+    return userMetas;
   }
 }

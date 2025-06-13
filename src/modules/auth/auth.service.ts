@@ -17,6 +17,7 @@ import { plainToInstance } from 'class-transformer';
 import { GoogleProfileParsed } from './dtos/google-profile-parsed.dta';
 import { AuthSignupDto } from './dtos/auth-signup';
 import { UserMetasService } from '../user-metas/user-metas.service';
+import { UserMetasResponseDto } from '../user-metas/dtos/user-metas-response.dto';
 
 const scrypt = promisify(_scrypt);
 
@@ -139,5 +140,17 @@ export class AuthService {
     const authResponse = new AuthResponseDto(user);
 
     return { user: authResponse, accessToken };
+  }
+
+  async termsAccepted(userUuid: string) {
+    const user = await this.usersService.findByUuid(userUuid, ['id']);
+
+    if(!user) {
+      throw new NotFoundException('Usuário não encontrado ao tentar aprovar os Termos de Serviço e Políticas de Privacidade.');
+    }
+
+    const termsOfService = await this.userMetasService.create(user.id, 'TERMS_OF_SERVICE', 'ACCEPTED', 'v1.0.0');
+    const privacyPolicies = await this.userMetasService.create(user.id, 'PRIVACY_POLICIES', 'ACCEPTED', 'v1.0.0');
+    return [ new UserMetasResponseDto(termsOfService), new UserMetasResponseDto(privacyPolicies) ];
   }
 }

@@ -87,6 +87,19 @@ export class UsersService {
     return this.userRepository.findOne({ where: { email }, relations: relations || [] });
   }
 
+  async findByUuid(uuid: string, select?: string[]) {
+    let user = this.userRepository
+    .createQueryBuilder('user')
+    .where('user.uuid = :uuid', { uuid });
+
+    if(select) {
+      select = select.map(columnName => `user.${columnName}`)
+      user.select(select);
+    }
+    
+    return await user.getOne();
+  }
+
   async update(id: number, body: UpdateUserDto, manager?: EntityManager): Promise<User> {
     const userRepository = manager ? manager.getRepository(User) : this.userRepository;
     const user = await this.findOne(id, ['account'], manager);
