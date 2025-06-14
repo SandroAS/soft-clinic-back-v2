@@ -9,6 +9,8 @@ import { RolesTypes } from '../roles/dtos/roles-types.dto';
 import { RolesService } from '../roles/roles.service';
 import { GoogleProfileParsed } from '../auth/dtos/google-profile-parsed.dta';
 import { AuthSignupDto } from '../auth/dtos/auth-signup';
+import { UpdateUserPersonalInformationDto } from './dtos/update-user-personal-information.dto';
+import { MinioService } from '@/minio/minio.service';
 
 const scrypt = promisify(_scrypt);
 
@@ -18,6 +20,7 @@ export class UsersService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private readonly rolesService: RolesService,
+    private readonly minioService: MinioService
   ) {}
 
   async create(roleName: RolesTypes, controllerProfile?: AuthSignupDto, googleProfile?: GoogleProfileParsed, manager?: EntityManager): Promise<User> {
@@ -103,7 +106,7 @@ export class UsersService {
   async update(id: number, body: UpdateUserDto, manager?: EntityManager): Promise<User> {
     const userRepository = manager ? manager.getRepository(User) : this.userRepository;
     const user = await this.findOne(id, ['account'], manager);
-    console.log('user', id);
+
     if (!user) {
       throw new NotFoundException('Usuário não encontrado ao tentar atualizar.');
     }
@@ -118,6 +121,32 @@ export class UsersService {
 
     Object.assign(user, body);
     return userRepository.save(user);
+  }
+
+  async updateUserPersonalInformations(uuid: string, body: UpdateUserPersonalInformationDto, file?: Express.Multer.File,) {
+    const user = await this.findByUuid(uuid);
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado ao tentar atualizar informações pessoais.');
+    }
+
+    if (file) {
+      if (user.profile_img_url) {
+        const oldObjectName = user.profile_img_url.split('/').pop();
+        if (oldObjectName) {
+          try {
+            await this.minioService.removeFile(`profile-images/${oldObjectName}`);
+          } catch (removeError) {
+            console.warn(`Não foi possível remover a imagem antiga ${oldObjectName}: ${removeError.message}`);
+          }
+        }
+      }
+      const objectName = await this.minioService.uploadFile(file, 'profile-images');
+      user.profile_img_url = await this.minioService.getFileUrl(objectName);
+    }
+
+    Object.assign(user, body);
+    return this.userRepository.save(user);
   }
 
   async remove(id: number) {

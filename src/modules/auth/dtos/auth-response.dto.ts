@@ -21,6 +21,9 @@ export class AuthResponseDto {
   cpf: string;
 
   @Expose()
+  profile_img_url: string;
+
+  @Expose()
   gender: string;
 
   @Expose({ name: 'is_active' })
@@ -44,6 +47,7 @@ export class AuthResponseDto {
     this.email = partial.email;
     this.cellphone = partial.cellphone;
     this.cpf = partial.cpf;
+    this.profile_img_url = partial.profile_img_url;
     this.gender = partial.gender;
     this.is_active = partial.is_active;
     this.role = null;

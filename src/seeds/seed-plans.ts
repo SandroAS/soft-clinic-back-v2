@@ -38,8 +38,9 @@ export async function seedPlans() {
     if (!exists) {
       const plan = planRepo.create(planData);
       await planRepo.save(plan);
+      console.log(`✅ Plano ${planData.name} inserido com sucesso!`);
+    } else {
+      console.log(`⚠️ Plano ${planData.name} já existe.`);
     }
   }
-
-  console.log('✅ Planos inseridos com sucesso!');
 }

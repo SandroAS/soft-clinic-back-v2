@@ -6,6 +6,7 @@ import {
   IsBoolean,
   IsOptional,
   Equals,
+  MaxLength,
 } from 'class-validator';
 import { IsCpf } from '@/common/validators/is-cpf.validator';
 
@@ -22,6 +23,7 @@ export class AuthSignupDto {
   @IsString({ message: 'O telefone deve ser uma string.' })
   @IsNotEmpty({ message: 'O telefone é obrigatório.' })
   @MinLength(10, { message: 'O telefone deve ter pelo menos 10 dígitos.' })
+  @MaxLength(11, { message: 'O telefone deve ter pelo menos 11 dígitos.' })
   cellphone: string;
 
   @IsString({ message: 'O CPF deve ser uma string.' })

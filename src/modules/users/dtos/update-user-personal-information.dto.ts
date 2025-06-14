@@ -1,0 +1,19 @@
+import { IsEmail, IsString, IsOptional, IsNumber } from 'class-validator';
+
+export class UpdateUserPersonalInformationDto {
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @IsEmail()
+  @IsOptional()
+  email?: string;
+
+  @IsString()
+  @IsOptional()
+  cellphone?: string;
+
+  @IsString()
+  @IsOptional()
+  cpf?: string;
+}

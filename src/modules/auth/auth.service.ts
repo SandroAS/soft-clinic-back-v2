@@ -33,9 +33,11 @@ export class AuthService {
 
   async whoami(userId: number): Promise<AuthResponseDto> {
     const user = await this.usersService.findOne(userId, ['account.lastTrial', 'account.systemModules', 'role.permissions', 'userMetas']);
+    console.log(user)
     if (!user) {
       throw new NotFoundException('Usuário não encontrado.');
     }
+
     const authResponse = new AuthResponseDto(user);
     return authResponse;
   }

@@ -7,11 +7,13 @@ import { User } from '@/entities/user.entity';
 // import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
 import { CurrentUserMiddleware } from './middlewares/current-user.middlewares';
 import { RolesModule } from '../roles/roles.module';
+import { MinioModule } from '@/minio/minio.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
-    RolesModule
+    RolesModule,
+    MinioModule
   ],
   controllers: [UsersController],
   providers: [

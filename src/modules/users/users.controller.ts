@@ -1,22 +1,10 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Put,
-  Delete,
-  Param,
-  Query,
-  NotFoundException,
-  UseGuards,
-} from '@nestjs/common';
-import { UpdateUserDto } from './dtos/update-user.dto';
+import { Body, Controller, Get, Put, Delete, Param, Query, NotFoundException, UseGuards, UseInterceptors, BadRequestException, UploadedFile } from '@nestjs/common';
 import { UsersService } from './users.service';
-// import { Serialize } from '../../interceptors/serialize.interceptor';
-// import { UserDto } from './dtos/user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { UpdateUserPersonalInformationDto } from './dtos/update-user-personal-information.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('user')
-// @Serialize(UserDto)
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
@@ -36,10 +24,24 @@ export class UsersController {
     return this.usersService.findByEmail(email);
   }
 
-  @Put('/:id')
+  @UseInterceptors(FileInterceptor('profile_image', {
+    // Limite de tamanho de arquivo (5MB = 5 * 1024 * 1024 bytes)
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+      if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+        return cb(new BadRequestException('Apenas arquivos de imagem (jpg, jpeg, png, gif) são permitidos!'), false);
+      }
+      cb(null, true);
+    },
+  }))
+  @Put('/personal-information/:uuid')
   @UseGuards(JwtAuthGuard)
-  async updateUser(@Param('id') id: string, @Body() body: UpdateUserDto) {
-    return this.usersService.update(parseInt(id), body);
+  async updateUserPersonalInformations(
+    @Param('uuid') uuid: string,
+    @Body() body: UpdateUserPersonalInformationDto,
+    @UploadedFile() file?: Express.Multer.File
+  ) {
+    return this.usersService.updateUserPersonalInformations(uuid, body, file);
   }
 
   @Delete('/:id')
