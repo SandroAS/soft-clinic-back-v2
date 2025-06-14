@@ -1,3 +1,4 @@
+import { Gender } from '@/entities/user.entity';
 import { IsEmail, IsString, IsOptional, IsNumber } from 'class-validator';
 
 export class UpdateUserDto {
@@ -16,6 +17,10 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   cpf?: string;
+
+  @IsString()
+  @IsOptional()
+  gender?: Gender;
 
   @IsString()
   @IsOptional()

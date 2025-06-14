@@ -1,5 +1,5 @@
 import { Expose, Type } from 'class-transformer';
-import { User } from '@/entities/user.entity';
+import { Gender, User } from '@/entities/user.entity';
 import { RoleResponseDto } from '@/modules/roles/dtos/role-response.dto';
 import { AccountResponseDto } from '@/modules/accounts/dtos/account-response.dto';
 import { UserMetasResponseDto } from '@/modules/user-metas/dtos/user-metas-response.dto';
@@ -24,7 +24,7 @@ export class AuthResponseDto {
   profile_img_url: string;
 
   @Expose()
-  gender: string;
+  gender: Gender;
 
   @Expose({ name: 'is_active' })
   is_active: boolean;

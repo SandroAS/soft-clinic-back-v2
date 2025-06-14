@@ -1,3 +1,4 @@
+import { Gender } from '@/entities/user.entity';
 import { Expose } from 'class-transformer';
 
 export class UserDto {
@@ -18,6 +19,9 @@ export class UserDto {
 
   @Expose()
   cpf: string;
+
+  @Expose()
+  gender: Gender;
 
   @Expose()
   created_at: Date;
