@@ -42,6 +42,10 @@ export class UsersController {
     @Body() body: UpdateUserPersonalInformationDto,
     @UploadedFile() file?: Express.Multer.File
   ): Promise<UpdateUserPersonalInformationResponseDto> {
+    console.log('controller', body)
+    if (body.gender !== null && body.gender !== undefined && body.gender !== 'MALE' && body.gender !== 'FEMALE') {
+      body.gender = null;
+    }
     return await this.usersService.updateUserPersonalInformations(uuid, body, file);
   }
 
