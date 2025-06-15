@@ -40,7 +40,7 @@ export async function seedPlans() {
       await planRepo.save(plan);
       console.log(`✅ Plano ${planData.name} inserido com sucesso!`);
     } else {
-      console.log(`⚠️ Plano ${planData.name} já existe.`);
+      console.log(`✅ Plano ${planData.name} já existe.`);
     }
   }
 }

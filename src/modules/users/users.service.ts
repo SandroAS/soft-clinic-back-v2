@@ -11,6 +11,7 @@ import { GoogleProfileParsed } from '../auth/dtos/google-profile-parsed.dta';
 import { AuthSignupDto } from '../auth/dtos/auth-signup';
 import { UpdateUserPersonalInformationDto } from './dtos/update-user-personal-information.dto';
 import { MinioService } from '@/minio/minio.service';
+import { UpdateUserPersonalInformationResponseDto } from './dtos/update-user-personal-information-response.dto';
 
 const scrypt = promisify(_scrypt);
 
@@ -123,13 +124,14 @@ export class UsersService {
     return userRepository.save(user);
   }
 
-  async updateUserPersonalInformations(uuid: string, body: UpdateUserPersonalInformationDto, file?: Express.Multer.File,) {
+  async updateUserPersonalInformations(uuid: string, body: UpdateUserPersonalInformationDto, file?: Express.Multer.File): Promise<UpdateUserPersonalInformationResponseDto> {
     const user = await this.findByUuid(uuid);
 
     if (!user) {
       throw new NotFoundException('Usuário não encontrado ao tentar atualizar informações pessoais.');
     }
 
+    let url: string | null = null;
     if (file) {
       if (user.profile_img_url) {
         const oldObjectName = user.profile_img_url.split('/').pop();
@@ -141,12 +143,15 @@ export class UsersService {
           }
         }
       }
-      const objectName = await this.minioService.uploadFile(file, 'profile-images');
-      user.profile_img_url = await this.minioService.getFileUrl(objectName);
+      const uploadResponse: { url: string, fileName: string } = await this.minioService.uploadFile(file, 'soft-clinic-bucket', 'profile-images');
+      url = uploadResponse.url
+      console.log(uploadResponse.fileName)
+      user.profile_img_url = uploadResponse.fileName;
     }
 
     Object.assign(user, body);
-    return this.userRepository.save(user);
+    await this.userRepository.save(user);
+    return { profile_img_url: url || user.profile_img_url };
   }
 
   async remove(id: number) {

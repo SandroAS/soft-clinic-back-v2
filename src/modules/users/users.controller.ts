@@ -3,6 +3,7 @@ import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UpdateUserPersonalInformationDto } from './dtos/update-user-personal-information.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateUserPersonalInformationResponseDto } from './dtos/update-user-personal-information-response.dto';
 
 @Controller('user')
 export class UsersController {
@@ -40,8 +41,8 @@ export class UsersController {
     @Param('uuid') uuid: string,
     @Body() body: UpdateUserPersonalInformationDto,
     @UploadedFile() file?: Express.Multer.File
-  ) {
-    return this.usersService.updateUserPersonalInformations(uuid, body, file);
+  ): Promise<UpdateUserPersonalInformationResponseDto> {
+    return await this.usersService.updateUserPersonalInformations(uuid, body, file);
   }
 
   @Delete('/:id')

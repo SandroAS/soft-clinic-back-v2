@@ -21,9 +21,7 @@ export async function seedSystemModules() {
       await systemModuleRepo.save(module);
       console.log(`✅ Módulo de sistema "${moduleData.name}" inserido com sucesso.`);
     } else {
-      console.log(`❕ Módulo de sistema "${moduleData.name}" já existe. Pulando inserção.`);
+      console.log(`✅ Módulo de sistema "${moduleData.name}" já existe. Pulando inserção.`);
     }
   }
-
-  console.log('✨ Seed de Módulos de Sistema concluído!');
 }

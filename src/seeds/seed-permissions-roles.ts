@@ -137,7 +137,7 @@ export async function seedPermissionsRoles() {
     await roleRepo.save(superAdminRole);
     console.log('✅ Role SUPER_ADMIN criada (sem permissões vinculadas).');
   } else {
-    console.log('⚠️ Role SUPER_ADMIN já existe.');
+    console.log('✅ Role SUPER_ADMIN já existe.');
   }
 
   // Cria as permissões
@@ -163,7 +163,7 @@ export async function seedPermissionsRoles() {
     await roleRepo.save(adminRole);
     console.log('✅ Role ADMIN criada.');
   } else {
-    console.log('⚠️ Role ADMIN já existe.');
+    console.log('✅ Role ADMIN já existe.');
   }
 
   // Criar role ASSISTANT com permissões restritas para assistentes
@@ -179,7 +179,7 @@ export async function seedPermissionsRoles() {
     await roleRepo.save(assistantRole);
     console.log('✅ Role ASSISTANT criada.');
   } else {
-    console.log('⚠️ Role ASSISTANT já existe.');
+    console.log('✅ Role ASSISTANT já existe.');
   }
 
   // Criar role HEALTHCARE_PROFESSIONAL com permissões restritas para profissionais de saúde
@@ -195,6 +195,6 @@ export async function seedPermissionsRoles() {
     await roleRepo.save(professionalRole);
     console.log('✅ Role HEALTHCARE_PROFESSIONAL criada.');
   } else {
-    console.log('⚠️ Role HEALTHCARE_PROFESSIONAL já existe.');
+    console.log('✅ Role HEALTHCARE_PROFESSIONAL já existe.');
   }
 }
