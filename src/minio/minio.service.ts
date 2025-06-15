@@ -1,79 +1,111 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as Minio from 'minio';
+import * as path from 'path';
+import * as crypto from 'crypto';
 
 @Injectable()
-export class MinioService {
+export class MinioService implements OnModuleInit {
   private readonly minioClient: Minio.Client;
   private readonly externalMinioClient: Minio.Client;
   private readonly logger = new Logger(MinioService.name);
 
-  private readonly port: number = parseInt(this.configService.get('MINIO_PORT'), 10)!;
-  private readonly useSSL: boolean = JSON.parse(this.configService.get('MINIO_USE_SSL'))!;
-  private readonly accessKey: string = this.configService.get('MINIO_ROOT_USER')!;
-  private readonly secretKey: string = this.configService.get('MINIO_ROOT_PASSWORD')!;
-  private readonly region: string = this.configService.get('MINIO_REGION')!;
-  private readonly bucketName: string = this.configService.get('MINIO_BUCKET')!;
+  private readonly minioPort: number;
+  private readonly minioUseSSL: boolean;
+  private readonly minioAccessKey: string;
+  private readonly minioSecretKey: string;
+  private readonly minioRegion: string;
+  private readonly minioBucketName: string;
+  private readonly minioInternalEndpoint: string;
+  private readonly minioExternalEndpoint: string;
+
 
   constructor(private readonly configService: ConfigService) {
-    const minioClientConfig = {
-      port: this.port,
-      useSSL: this.useSSL,
-      accessKey: this.accessKey,
-      secretKey: this.secretKey,
-      region: this.region
+    this.minioPort = parseInt(this.configService.get<string>('MINIO_PORT', '9000'), 10);
+    this.minioUseSSL = this.configService.get<string>('MINIO_USE_SSL') === 'true';
+    this.minioAccessKey = this.configService.get<string>('MINIO_ROOT_USER')!;
+    this.minioSecretKey = this.configService.get<string>('MINIO_ROOT_PASSWORD')!;
+    this.minioRegion = this.configService.get<string>('MINIO_REGION', 'us-east-1')!;
+    this.minioBucketName = this.configService.get<string>('MINIO_BUCKET')!;
+    this.minioInternalEndpoint = this.configService.get<string>('MINIO_ENDPOINT')!;
+    this.minioExternalEndpoint = this.configService.get<string>('APP_HOST')!;
+
+    if (!this.minioAccessKey || !this.minioSecretKey || !this.minioBucketName ||
+        !this.minioInternalEndpoint || !this.minioExternalEndpoint) {
+      this.logger.error('Missing one or more MinIO environment variables. Please check your .env file.');
+      throw new Error('MinIO configuration incomplete.');
     }
 
+    const minioClientConfig = {
+      port: this.minioPort,
+      useSSL: this.minioUseSSL,
+      accessKey: this.minioAccessKey,
+      secretKey: this.minioSecretKey,
+      region: this.minioRegion
+    };
+
     this.minioClient = new Minio.Client({
-      endPoint: this.configService.get('MINIO_ENDPOINT')!,
+      endPoint: this.minioInternalEndpoint,
       ...minioClientConfig
     });
 
     this.externalMinioClient = new Minio.Client({
-      endPoint: this.configService.get('APP_HOST')!,
+      endPoint: this.minioExternalEndpoint,
       ...minioClientConfig
     });
   }
 
-  async uploadFile(file: Express.Multer.File, bucket: string, fileName: string) {
-    try {
-      await this.createBucket(this.bucketName, this.region)
-
-      await this.minioClient.putObject(bucket, fileName, file.buffer, file.size, {
-        'Content-Type': file.mimetype,
-        'x-amz-acl': 'public-read',
-      });
-
-      const url = await this.getFileUrl(fileName, bucket);
-      return { fileName, url };
-    } catch (err) {
-      this.logger.error(`Erro ao tentar fazer upload do arquivo '${fileName}'. Erro: '${err}'`);
-      throw new InternalServerErrorException('Erro ao fazer upload do arquivo');
-    }
+  async onModuleInit() {
+    await this.createBucketIfNotExists();
   }
 
-  async createBucket(bucketName: string, region: string): Promise<void> {
+  private async createBucketIfNotExists(): Promise<void> {
     try {
-      const bucketExists = await this.minioClient.bucketExists(bucketName);
-
-      if (bucketExists) {
-        return;
+      const bucketExists = await this.minioClient.bucketExists(this.minioBucketName);
+      if (!bucketExists) {
+        await this.minioClient.makeBucket(this.minioBucketName, this.minioRegion);
+        this.logger.log(`Bucket '${this.minioBucketName}' created successfully in region '${this.minioRegion}'.`);
+      } else {
+        this.logger.log(`Bucket '${this.minioBucketName}' already exists.`);
       }
-
-      await this.minioClient.makeBucket(bucketName, region);
-      this.logger.log(`Bucket ${bucketName} criado com sucesso na região ${region}.`);
     } catch (err) {
-      this.logger.error(`Erro ao tentar criar Bucket '${bucketName}'. Erro: '${err}'`);
-      throw new Error('Erro ao criar o bucket');
+      this.logger.error(`Error trying to create/check bucket '${this.minioBucketName}'. Error: '${err}'`);
+      throw new InternalServerErrorException('Error creating/checking MinIO bucket.'); // Melhorar a exceção
     }
   }
 
-  async getFileUrl(fileName: string, bucket: string = this.bucketName) {
+  async uploadFile(file: Express.Multer.File, folder: string = 'general'): Promise<string> {
+    const fileExtension = path.extname(file.originalname);
+    const uniqueFileName = `${crypto.randomBytes(16).toString('hex')}${fileExtension}`;
+    const objectName = folder ? `${folder}/${uniqueFileName}` : uniqueFileName;
+
     try {
-      return await this.externalMinioClient.presignedGetObject(bucket, fileName);
+      await this.minioClient.putObject(this.minioBucketName, objectName, file.buffer, file.size, {
+        'Content-Type': file.mimetype,
+      });
+      this.logger.log(`File '${objectName}' uploaded successfully to bucket '${this.minioBucketName}'.`);
+      return objectName;
     } catch (err) {
-      this.logger.error(`Erro ao tentar gerar url assinada '${fileName}' do MinIO: ${err.message}`);
-      throw new InternalServerErrorException('Erro ao gerar URL assinada');
+      this.logger.error(`Error uploading file '${file.originalname}' to MinIO. Error: '${err}'`);
+      throw new InternalServerErrorException('Error uploading file.');
+    }
+  }
+
+  async getPresignedUrl(objectName: string, expirySeconds: number = 7 * 24 * 60 * 60): Promise<string> {
+    if (!objectName) {
+      return null;
+    }
+    try {
+      const url = await this.externalMinioClient.presignedGetObject(
+        this.minioBucketName,
+        objectName,
+        expirySeconds
+      );
+      this.logger.debug(`Presigned URL generated for '${objectName}': ${url}, valid for ${expirySeconds}s.`);
+      return url;
+    } catch (err) {
+      this.logger.error(`Error generating presigned URL for '${objectName}': ${err.message}`);
+      throw new InternalServerErrorException('Error generating presigned URL.');
     }
   }
 
@@ -83,11 +115,11 @@ export class MinioService {
    */
   async removeFile(objectName: string): Promise<void> {
     try {
-      await this.minioClient.removeObject(this.bucketName, objectName);
-      this.logger.log(`Arquivo '${objectName}' removido com sucesso do bucket '${this.bucketName}'.`);
+      await this.minioClient.removeObject(this.minioBucketName, objectName);
+      this.logger.log(`File '${objectName}' removed successfully from bucket '${this.minioBucketName}'.`);
     } catch (error) {
-      this.logger.error(`Erro ao remover o arquivo '${objectName}' do MinIO: ${error.message}`);
-      throw error;
+      this.logger.error(`Error removing file '${objectName}' from MinIO: ${error.message}`);
+      throw new InternalServerErrorException('Error removing file.'); // Padronizar exceção
     }
   }
 }

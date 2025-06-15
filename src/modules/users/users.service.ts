@@ -12,6 +12,7 @@ import { AuthSignupDto } from '../auth/dtos/auth-signup';
 import { UpdateUserPersonalInformationDto } from './dtos/update-user-personal-information.dto';
 import { MinioService } from '@/minio/minio.service';
 import { UpdateUserPersonalInformationResponseDto } from './dtos/update-user-personal-information-response.dto';
+import * as path from 'path';
 
 const scrypt = promisify(_scrypt);
 
@@ -52,23 +53,35 @@ export class UsersService {
   async findOne(id: number, relations?: string[], manager?: EntityManager): Promise<User | undefined> {
     const userRepository = manager ? manager.getRepository(User) : this.userRepository;
 
+    let user: User | undefined;
+
     if (relations && relations.length > 0) {
-      let user: User;
       user = await userRepository.findOne({
         where: { id },
         relations,
       });
-
-      if(relations.includes('role.permissions') && user?.role?.permissions) {
-        user.role.permissions = user.role.permissions.map(permission => {
-          return permission.name;
-        }) as any;
-      }
-
-      return user;
+    } else {
+      user = await userRepository.findOne({ where: { id } });
     }
 
-    return await userRepository.findOne({ where: { id }, relations: relations || [] });
+    if (user.profile_img_url && !user.profile_img_url.includes('googleusercontent')) {
+      try {
+        user.profile_img_url = await this.minioService.getPresignedUrl(user.profile_img_url);
+      } catch (err) {
+        this.minioService['logger'].error(`Falha ao tentar gerar url assinada para usuário, image '${user.profile_img_url}': ${err.message}`);
+        user.profile_img_url = null;
+      }
+    } else {
+      user.profile_img_url = null;
+    }
+
+    if (relations?.includes('role.permissions') && user.role?.permissions) {
+      user.role.permissions = user.role.permissions.map(permission => {
+        return permission.name;
+      }) as any;
+    }
+
+    return user;
   }
 
   async findByEmail(email: string, relations?: string[]): Promise<User | undefined> {
@@ -124,34 +137,44 @@ export class UsersService {
     return userRepository.save(user);
   }
 
-  async updateUserPersonalInformations(uuid: string, body: UpdateUserPersonalInformationDto, file?: Express.Multer.File): Promise<UpdateUserPersonalInformationResponseDto> {
+  async updateUserPersonalInformations(
+    uuid: string,
+    body: UpdateUserPersonalInformationDto,
+    file?: Express.Multer.File,
+  ): Promise<UpdateUserPersonalInformationResponseDto> {
     const user = await this.findByUuid(uuid);
 
     if (!user) {
       throw new NotFoundException('Usuário não encontrado ao tentar atualizar informações pessoais.');
     }
 
-    let url: string | null = null;
+    let newImageUrl: string | null = null;
+    let newProfileObjectName: string | null = null;
+
     if (file) {
-      if (user.profile_img_url) {
-        const oldObjectName = user.profile_img_url.split('/').pop();
-        if (oldObjectName) {
-          try {
-            await this.minioService.removeFile(`profile-images/${oldObjectName}`);
-          } catch (removeError) {
-            console.warn(`Não foi possível remover a imagem antiga ${oldObjectName}: ${removeError.message}`);
-          }
+      if (user.profile_img_url && !user.profile_img_url.includes('googleusercontent')) {
+        try {
+          await this.minioService.removeFile(user.profile_img_url);
+        } catch (removeError) {
+          console.error(`Failed to remove old profile image '${user.profile_img_url}': ${removeError.message}`);
         }
       }
-      const uploadResponse: { url: string, fileName: string } = await this.minioService.uploadFile(file, 'soft-clinic-bucket', 'profile-images');
-      url = uploadResponse.url
-      console.log(uploadResponse.fileName)
-      user.profile_img_url = uploadResponse.fileName;
+
+      newProfileObjectName = await this.minioService.uploadFile(file, 'profile-images');
+      newImageUrl = await this.minioService.getPresignedUrl(newProfileObjectName);
+    } else {
+      if (user.profile_img_url && !user.profile_img_url.includes('googleusercontent')) {
+        newProfileObjectName = user.profile_img_url;
+        newImageUrl = await this.minioService.getPresignedUrl(newProfileObjectName);
+      }
     }
+
+    user.profile_img_url = newProfileObjectName;
 
     Object.assign(user, body);
     await this.userRepository.save(user);
-    return { profile_img_url: url || user.profile_img_url };
+
+    return { profile_img_url: newImageUrl };
   }
 
   async remove(id: number) {
