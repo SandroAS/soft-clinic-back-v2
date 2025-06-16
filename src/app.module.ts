@@ -18,6 +18,7 @@ import { AttemptChargesModule } from './modules/attempt-charges/attempt-charges.
 import { SalesModule } from './modules/sales/sales.module';
 import { UserMetasModule } from './modules/user-metas/user-metas.module';
 import { SystemModulesModule } from './modules/system-modules/system-modules.module';
+import { CompaniesModule } from './modules/companies/companies.module';
 
 const cookieSession = require('cookie-session');
 
@@ -57,7 +58,8 @@ const cookieSession = require('cookie-session');
     AttemptChargesModule,
     SalesModule,
     UserMetasModule,
-    SystemModulesModule
+    SystemModulesModule,
+    CompaniesModule
   ],
   controllers: [AppController],
   providers: [
