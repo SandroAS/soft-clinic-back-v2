@@ -19,6 +19,7 @@ import { SalesModule } from './modules/sales/sales.module';
 import { UserMetasModule } from './modules/user-metas/user-metas.module';
 import { SystemModulesModule } from './modules/system-modules/system-modules.module';
 import { CompaniesModule } from './modules/companies/companies.module';
+import { AddressesModule } from './modules/addresses/addresses.module';
 
 const cookieSession = require('cookie-session');
 
@@ -59,7 +60,8 @@ const cookieSession = require('cookie-session');
     SalesModule,
     UserMetasModule,
     SystemModulesModule,
-    CompaniesModule
+    CompaniesModule,
+    AddressesModule
   ],
   controllers: [AppController],
   providers: [

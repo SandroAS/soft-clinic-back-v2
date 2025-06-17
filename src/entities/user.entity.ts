@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, BeforeInsert, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, BeforeInsert, OneToMany, OneToOne } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { v4 as uuidv4 } from 'uuid';
 import { Account } from './account.entity';
@@ -7,6 +7,7 @@ import { Sale } from './sale.entity';
 import { Role } from './role.entity';
 import { UserMeta } from './user-meta.entity';
 import { Company } from './company.entity';
+import { Address } from './address.entity';
 
 export enum Gender {
   MALE = 'MALE',
@@ -79,6 +80,13 @@ export class User {
 
   @OneToMany(() => Company, company => company.user)
   companies: Company[];
+
+  @OneToOne(() => Address, { cascade: true, eager: true, onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'address_id' })
+  address: Address;
+
+  @Column({ nullable: true, name: 'address_id' })
+  address_id: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

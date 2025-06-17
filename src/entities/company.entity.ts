@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, BeforeInsert } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, BeforeInsert, OneToOne } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from './user.entity';
+import { Address } from './address.entity';
 
 @Entity('companies')
 export class Company {
@@ -36,6 +37,13 @@ export class Company {
 
   @Column({ nullable: true })
   email: string;
+
+  @OneToOne(() => Address, { cascade: true, eager: true, onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'address_id' })
+  address: Address;
+
+  @Column({ nullable: true, name: 'address_id' })
+  address_id: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

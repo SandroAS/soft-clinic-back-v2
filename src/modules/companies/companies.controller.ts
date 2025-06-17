@@ -1,10 +1,10 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards, Request, HttpStatus, HttpCode, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards, Request, HttpStatus, HttpCode } from '@nestjs/common';
 import { CompaniesService } from './companies.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateCompanyDto } from './dtos/create-company.dto';
 import { UpdateCompanyDto } from './dtos/update-company.dto';
 import { CompanyResponseDto } from './dtos/company-response.dto';
-import { User } from 'src/entities/user.entity'; // Sua entidade User para tipagem
+import { User } from 'src/entities/user.entity';
 
 @UseGuards(JwtAuthGuard)
 @Controller('companies')
