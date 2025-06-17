@@ -12,12 +12,12 @@ export class CompaniesController {
   constructor(private readonly companyService: CompaniesService) {}
 
   @Post()
-  @HttpCode(HttpStatus.CREATED) // Retorna status 201 Created
+  @HttpCode(HttpStatus.CREATED)
   async create(
     @Body() createCompanyDto: CreateCompanyDto,
-    @Request() req, // O JwtAuthGuard anexa o objeto `user` autenticado aqui
+    @Request() req,
   ): Promise<CompanyResponseDto> {
-    const user: User = req.user; // Pega o usuário injetado pelo guard
+    const user: User = req.user;
     return this.companyService.create(createCompanyDto, user);
   }
 
@@ -33,14 +33,6 @@ export class CompaniesController {
   ): Promise<CompanyResponseDto> {
     const user: User = req.user;
     const company = await this.companyService.findOneByUuid(uuid);
-
-    // Lógica de autorização baseada em recurso:
-    // Se o usuário não for ADMIN, ele só pode ver suas próprias empresas
-    // if (user.role.name !== RolesTypes.ADMIN) {
-    //   if (company.userId !== user.id) {
-    //     throw new NotFoundException(`Empresa com UUID '${uuid}' não encontrada ou você não tem permissão para acessá-la.`);
-    //   }
-    // }
     return company;
   }
 
@@ -51,30 +43,16 @@ export class CompaniesController {
     @Request() req,
   ): Promise<CompanyResponseDto> {
     const user: User = req.user;
-    // Verifica permissão (ADMIN ou proprietário) antes de tentar atualizar
-    // if (user.role.name !== RolesTypes.ADMIN) {
-    //   const isOwner = await this.companyService.isCompanyOwner(uuid, user.id);
-    //   if (!isOwner) {
-    //     throw new NotFoundException(`Empresa com UUID '${uuid}' não encontrada ou você não tem permissão para atualizá-la.`);
-    //   }
-    // }
-    return this.companyService.update(uuid, updateCompanyDto);
+    return this.companyService.update(uuid, updateCompanyDto, user);
   }
 
   @Delete(':uuid')
-  @HttpCode(HttpStatus.NO_CONTENT) // Retorna status 204 No Content para remoção bem-sucedida
+  @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
     @Param('uuid') uuid: string,
     @Request() req,
   ): Promise<void> {
     const user: User = req.user;
-    // Verifica permissão (ADMIN ou proprietário) antes de tentar remover
-    // if (user.role.name !== RolesTypes.ADMIN) {
-    //   const isOwner = await this.companyService.isCompanyOwner(uuid, user.id);
-    //   if (!isOwner) {
-    //     throw new NotFoundException(`Empresa com UUID '${uuid}' não encontrada ou você não tem permissão para removê-la.`);
-    //   }
-    // }
     await this.companyService.remove(uuid);
   }
 }

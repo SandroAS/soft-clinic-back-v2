@@ -101,7 +101,6 @@ export class MinioService implements OnModuleInit {
         objectName,
         expirySeconds
       );
-      this.logger.debug(`Presigned URL generated for '${objectName}': ${url}, valid for ${expirySeconds}s.`);
       return url;
     } catch (err) {
       this.logger.error(`Error generating presigned URL for '${objectName}': ${err.message}`);

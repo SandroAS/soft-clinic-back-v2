@@ -30,34 +30,24 @@ export class CompaniesService {
    * @returns A empresa criada em formato de CompanyResponseDto.
    */
   async create(createCompanyDto: CreateCompanyDto, user: User): Promise<CompanyResponseDto> {
-    // 1. Validação de unicidade antes de criar
     const existingCompanyByCnpj = await this.companyRepository.findOne({ where: { cnpj: createCompanyDto.cnpj } });
     if (existingCompanyByCnpj) {
-      this.logger.warn(`Attempted to create company with existing CNPJ: ${createCompanyDto.cnpj}`);
+      this.logger.warn(`Tentativa de criar empresa com CNPJ já existente: ${createCompanyDto.cnpj}`);
       throw new ConflictException('Já existe uma empresa cadastrada com este CNPJ.');
     }
+    // PARA ASSISTENT depois fazer a logica de dar opcao de usar mesma empresa da conta do ADMIN se existir
 
-    const existingCompanyByEmail = await this.companyRepository.findOne({ where: { email: createCompanyDto.email } });
-    if (existingCompanyByEmail) {
-      this.logger.warn(`Attempted to create company with existing email: ${createCompanyDto.email}`);
-      throw new ConflictException('Já existe uma empresa cadastrada com este email.');
-    }
-
-    // 2. Cria a instância da empresa
     const company = this.companyRepository.create({
       ...createCompanyDto,
-      user: user,
+      user,
       user_id: user.id,
     });
 
-    // 3. Salva a empresa no banco de dados
     try {
       const savedCompany = await this.companyRepository.save(company);
-      this.logger.log(`Company '${savedCompany.name}' (UUID: ${savedCompany.uuid}) created by user ${user.id}.`);
       return new CompanyResponseDto(savedCompany);
-    } catch (error) {
-      this.logger.error(`Error creating company: ${error.message}`, error.stack);
-      // Lança uma exceção genérica se for um erro inesperado
+    } catch (err) {
+      this.logger.error(`Erro ao tentar criar empresa: ${err.message}`, err.stack);
       throw new InternalServerErrorException('Ocorreu um erro ao criar a empresa.');
     }
   }
@@ -96,42 +86,32 @@ export class CompaniesService {
    * Atualiza os dados de uma empresa pelo seu UUID.
    * @param uuid UUID da empresa a ser atualizada.
    * @param updateCompanyDto DTO com os dados de atualização.
+   * @param user O objeto User completo que está atualizando a empresa.
    * @returns A empresa atualizada em formato de CompanyResponseDto.
    * @throws NotFoundException se a empresa não for encontrada.
    * @throws ConflictException se o CNPJ ou email atualizados já existirem em outra empresa.
    */
-  async update(uuid: string, updateCompanyDto: UpdateCompanyDto): Promise<CompanyResponseDto> {
+  async update(uuid: string, updateCompanyDto: UpdateCompanyDto, user: User): Promise<CompanyResponseDto> {
     const company = await this.companyRepository.findOne({ where: { uuid } });
-
     if (!company) {
-      this.logger.warn(`Attempted to update non-existent company with UUID: ${uuid}`);
+      this.logger.warn(`Tentativa de atualizar empresa não existente com UUID: ${uuid}`);
       throw new NotFoundException(`Empresa com UUID '${uuid}' não encontrada.`);
     }
 
-    // Validação de unicidade para CNPJ e email se estiverem sendo atualizados
     if (updateCompanyDto.cnpj && updateCompanyDto.cnpj !== company.cnpj) {
       const existingCompany = await this.companyRepository.findOne({ where: { cnpj: updateCompanyDto.cnpj } });
-      if (existingCompany && existingCompany.uuid !== uuid) { // Garante que não é a própria empresa
-        this.logger.warn(`Attempted to update company with existing CNPJ: ${updateCompanyDto.cnpj}`);
+      if (existingCompany && existingCompany.uuid !== uuid) {
+        this.logger.warn(`Tentativa de atualizar empresa com CNPJ já existente, CNPJ: ${updateCompanyDto.cnpj}`);
         throw new ConflictException('CNPJ já cadastrado para outra empresa.');
       }
     }
-    if (updateCompanyDto.email && updateCompanyDto.email !== company.email) {
-      const existingCompany = await this.companyRepository.findOne({ where: { email: updateCompanyDto.email } });
-      if (existingCompany && existingCompany.uuid !== uuid) { // Garante que não é a própria empresa
-        this.logger.warn(`Attempted to update company with existing email: ${updateCompanyDto.email}`);
-        throw new ConflictException('Email já cadastrado para outra empresa.');
-      }
-    }
 
-    // Aplica as atualizações e salva
     Object.assign(company, updateCompanyDto);
     try {
       const updatedCompany = await this.companyRepository.save(company);
-      this.logger.log(`Company '${updatedCompany.name}' (UUID: ${uuid}) updated successfully.`);
       return new CompanyResponseDto(updatedCompany);
-    } catch (error) {
-      this.logger.error(`Error updating company ${uuid}: ${error.message}`, error.stack);
+    } catch (err) {
+      this.logger.error(`Error ao tentar atualizar empresa ${uuid}: ${err.message}`, err.stack);
       throw new InternalServerErrorException('Ocorreu um erro ao atualizar a empresa.');
     }
   }
@@ -145,7 +125,7 @@ export class CompaniesService {
     const result = await this.companyRepository.delete({ uuid });
 
     if (result.affected === 0) {
-      this.logger.warn(`Attempted to remove non-existent company with UUID: ${uuid}`);
+      this.logger.warn(`Tentativa de remover uma empresa não existente, UUID: ${uuid}`);
       throw new NotFoundException(`Empresa com UUID '${uuid}' não encontrada para remoção.`);
     }
     this.logger.log(`Company with UUID ${uuid} removed successfully.`);

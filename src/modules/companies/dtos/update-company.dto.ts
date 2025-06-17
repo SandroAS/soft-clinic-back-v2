@@ -1,4 +1,5 @@
-import { IsString, IsEmail, IsOptional, Length, Matches } from 'class-validator';
+import { IsString, IsEmail, IsOptional, Length } from 'class-validator';
+import { IsCnpj } from '@/common/validators/is-cnpj.validator';
 
 export class UpdateCompanyDto {
   @IsOptional()
@@ -13,8 +14,7 @@ export class UpdateCompanyDto {
 
   @IsOptional()
   @IsString({ message: 'O CNPJ deve ser uma string.' })
-  @Length(14, 14, { message: 'O CNPJ deve ter exatamente 14 dígitos.' })
-  @Matches(/^\d{14}$/, { message: 'O CNPJ deve conter apenas números.' })
+  @IsCnpj({ message: 'CNPJ inválido.' })
   cnpj?: string;
 
   @IsOptional()

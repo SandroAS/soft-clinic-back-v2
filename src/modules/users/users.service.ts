@@ -71,8 +71,6 @@ export class UsersService {
         this.minioService['logger'].error(`Falha ao tentar gerar url assinada para usuário, image '${user.profile_img_url}': ${err.message}`);
         user.profile_img_url = null;
       }
-    } else {
-      user.profile_img_url = null;
     }
 
     if (relations?.includes('role.permissions') && user.role?.permissions) {
