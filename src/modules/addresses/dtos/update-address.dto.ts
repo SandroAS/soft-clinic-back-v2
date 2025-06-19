@@ -33,8 +33,6 @@ export class UpdateAddressDto {
   @Length(3, 255, { message: 'A cidade deve ter entre 3 e 255 caracteres.' })
   city: string;
 
-  @IsEnum(BrazilianStates, {
-    message: 'Estado inválido. Escolha uma sigla válida (ex: SP, MG).',
-  })
+  @IsEnum(BrazilianStates, { message: 'Estado inválido. Escolha uma sigla válida (ex: SP, MG).' })
   state: BrazilianStates;
 }

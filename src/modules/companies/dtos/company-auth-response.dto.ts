@@ -1,5 +1,5 @@
 import { Company } from '@/entities/company.entity';
-import { AddressResponseDto } from '@/modules/addresses/dtos/address-response.dto';
+import { AddressAuthResponseDto } from '@/modules/addresses/dtos/address-auth-response.dto';
 import { Expose } from 'class-transformer';
 
 export class CompanyAuthResponseDto {
@@ -22,7 +22,7 @@ export class CompanyAuthResponseDto {
   email: string;
 
   @Expose()
-  address: AddressResponseDto;
+  address: AddressAuthResponseDto;
 
   constructor(partial: Company) {
     this.uuid = partial.uuid;
@@ -33,7 +33,7 @@ export class CompanyAuthResponseDto {
     this.email = partial.email;
 
     if (partial.address) {
-      this.address = new AddressResponseDto(partial.address);
+      this.address = new AddressAuthResponseDto(partial.address);
     }
   }
 }

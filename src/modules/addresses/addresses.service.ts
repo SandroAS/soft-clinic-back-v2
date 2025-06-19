@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Address } from 'src/entities/address.entity';
 import { CreateAddressDto } from './dtos/create-address.dto';
 import { UpdateAddressDto } from './dtos/update-address.dto';
-import { AddressResponseDto } from './dtos/address-response.dto'
+import { AddressAuthResponseDto } from './dtos/address-auth-response.dto'
 
 @Injectable()
 export class AddressesService {
@@ -20,12 +20,12 @@ export class AddressesService {
    * @param createAddressDto DTO com os dados do endereço.
    * @returns 
    */
-  async create(createAddressDto: CreateAddressDto): Promise<AddressResponseDto> {
+  async create(createAddressDto: CreateAddressDto): Promise<Address> {
     const address = this.addressRepository.create(createAddressDto);
 
     try {
       const savedAddress = await this.addressRepository.save(address);
-      return new AddressResponseDto(savedAddress);
+      return savedAddress;
     } catch (error) {
       this.logger.error(`Erro ao tentar criar enderesso: ${error.message}`, error.stack);
       throw new InternalServerErrorException('Ocorreu um erro ao criar o endereço.');
@@ -35,10 +35,10 @@ export class AddressesService {
   /**
    * Encontra um endereço pelo seu UUID.
    * @param uuid UUID do endereço.
-   * @returns O endereço encontrado em formato de AddressResponseDto.
+   * @returns O endereço encontrado em formato de AddressAuthResponseDto.
    * @throws NotFoundException se o endereço não for encontrado.
    */
-  async findOneByUuid(uuid: string): Promise<AddressResponseDto> {
+  async findOneByUuid(uuid: string): Promise<AddressAuthResponseDto> {
     const address = await this.addressRepository.findOne({ where: { uuid } });
 
     if (!address) {
@@ -46,27 +46,27 @@ export class AddressesService {
       throw new NotFoundException(`Endereço com UUID '${uuid}' não encontrado.`);
     }
 
-    return new AddressResponseDto(address);
+    return new AddressAuthResponseDto(address);
   }
 
   /**
    * Encontra todos os endereços.
    * Em um cenário real, adicione paginação, filtros e ordenação.
-   * @returns Uma lista de endereços em formato de AddressResponseDto.
+   * @returns Uma lista de endereços em formato de AddressAuthResponseDto.
    */
-  async findAll(): Promise<AddressResponseDto[]> {
+  async findAll(): Promise<AddressAuthResponseDto[]> {
     const addresses = await this.addressRepository.find();
-    return addresses.map(address => new AddressResponseDto(address));
+    return addresses.map(address => new AddressAuthResponseDto(address));
   }
 
   /**
    * Atualiza os dados de um endereço pelo seu UUID.
    * @param uuid UUID do endereço a ser atualizado.
    * @param updateAddressDto DTO com os dados de atualização.
-   * @returns O endereço atualizado em formato de AddressResponseDto.
+   * @returns O endereço atualizado em formato de AddressAuthResponseDto.
    * @throws NotFoundException se o endereço não for encontrado.
    */
-  async update(uuid: string, updateAddressDto: UpdateAddressDto): Promise<AddressResponseDto> {
+  async update(uuid: string, updateAddressDto: UpdateAddressDto): Promise<AddressAuthResponseDto> {
     const address = await this.addressRepository.findOne({ where: { uuid } });
 
     if (!address) {
@@ -77,7 +77,7 @@ export class AddressesService {
     Object.assign(address, updateAddressDto);
     try {
       const updatedAddress = await this.addressRepository.save(address);
-      return new AddressResponseDto(updatedAddress);
+      return new AddressAuthResponseDto(updatedAddress);
     } catch (error) {
       this.logger.error(`Erro ao tentar atualizar endereço ${uuid}: ${error.message}`, error.stack);
       throw new InternalServerErrorException('Ocorreu um erro ao atualizar o endereço.');

@@ -6,6 +6,7 @@ import { User } from 'src/entities/user.entity';
 import { CreateCompanyDto } from './dtos/create-company.dto';
 import { UpdateCompanyDto } from './dtos/update-company.dto';
 import { CompanyResponseDto } from './dtos/company-response.dto';
+import { AddressesService } from '../addresses/addresses.service';
 
 
 @Injectable()
@@ -15,6 +16,7 @@ export class CompaniesService {
   constructor(
     @InjectRepository(Company)
     private companyRepository: Repository<Company>,
+    private readonly addressesService: AddressesService,
   ) {}
 
   /**
@@ -86,7 +88,7 @@ export class CompaniesService {
    * @throws ConflictException se o CNPJ ou email atualizados já existirem em outra empresa.
    */
   async update(uuid: string, updateCompanyDto: UpdateCompanyDto, user: User): Promise<CompanyResponseDto> {
-    const company = await this.companyRepository.findOne({ where: { uuid } });
+    const company = await this.companyRepository.findOne({ where: { uuid }, relations: ['address'] })
     if (!company) {
       this.logger.warn(`Tentativa de atualizar empresa não existente com UUID: ${uuid}`);
       throw new NotFoundException(`Empresa com UUID '${uuid}' não encontrada.`);
@@ -100,13 +102,29 @@ export class CompaniesService {
       }
     }
 
-    Object.assign(company, updateCompanyDto);
+    if (updateCompanyDto.address !== undefined) {
+      if (updateCompanyDto.address === null) {
+        if (company.address) {
+          company.address = null;
+          await this.addressesService.remove(company.address.uuid);
+        }
+      } else if (company.address) {
+        Object.assign(company.address, updateCompanyDto.address);
+      } else {
+        company.address = await this.addressesService.create(updateCompanyDto.address);
+      }
+    }
+
+    const { address, ...restOfUpdateCompanyDto } = updateCompanyDto;
+    Object.assign(company, restOfUpdateCompanyDto);
+
     try {
       const updatedCompany = await this.companyRepository.save(company);
+      console.log(updatedCompany)
       return new CompanyResponseDto(updatedCompany);
     } catch (err) {
       this.logger.error(`Error ao tentar atualizar empresa ${uuid}: ${err.message}`, err.stack);
-      throw new InternalServerErrorException('Ocorreu um erro ao atualizar a empresa.');
+      throw new InternalServerErrorException('Ocorreu um erro ao atualizar a empresa e/ou seu endereço.');
     }
   }
 

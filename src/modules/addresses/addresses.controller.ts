@@ -2,7 +2,7 @@ import { Controller, Post, Body, Get, Param, Patch, Delete, HttpStatus, HttpCode
 import { AddressesService } from './addresses.service';
 import { CreateAddressDto } from './dtos/create-address.dto';
 import { UpdateAddressDto } from './dtos/update-address.dto';
-import { AddressResponseDto } from './dtos/address-response.dto';
+import { AddressAuthResponseDto } from './dtos/address-auth-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '@/entities/user.entity';
 
@@ -13,17 +13,17 @@ export class AddressesController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createAddressDto: CreateAddressDto): Promise<AddressResponseDto> {
+  async create(@Body() createAddressDto: CreateAddressDto): Promise<AddressAuthResponseDto> {
     return this.addressService.create(createAddressDto);
   }
 
   @Get()
-  async findAll(): Promise<AddressResponseDto[]> {
+  async findAll(): Promise<AddressAuthResponseDto[]> {
     return this.addressService.findAll();
   }
 
   @Get(':uuid')
-  async findOne(@Param('uuid') uuid: string, @Request() req,): Promise<AddressResponseDto> {
+  async findOne(@Param('uuid') uuid: string, @Request() req,): Promise<AddressAuthResponseDto> {
     const user: User = req.user;
     return this.addressService.findOneByUuid(uuid);
   }
@@ -32,7 +32,7 @@ export class AddressesController {
   async update(
     @Param('uuid') uuid: string,
     @Body() updateAddressDto: UpdateAddressDto,
-  ): Promise<AddressResponseDto> {
+  ): Promise<AddressAuthResponseDto> {
     return this.addressService.update(uuid, updateAddressDto);
   }
 

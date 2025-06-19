@@ -1,5 +1,7 @@
-import { IsString, IsEmail, IsOptional, Length } from 'class-validator';
+import { IsString, IsEmail, IsOptional, Length, ValidateNested } from 'class-validator';
 import { IsCnpj } from '@/common/validators/is-cnpj.validator';
+import { UpdateAddressDto } from '@/modules/addresses/dtos/update-address.dto';
+import { Type } from 'class-transformer';
 
 export class UpdateCompanyDto {
   @IsOptional()
@@ -26,4 +28,9 @@ export class UpdateCompanyDto {
   @IsEmail({}, { message: 'Email inválido.' })
   @Length(5, 255, { message: 'O email deve ter entre 5 e 255 caracteres.' })
   email?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpdateAddressDto)
+  address?: UpdateAddressDto;
 }

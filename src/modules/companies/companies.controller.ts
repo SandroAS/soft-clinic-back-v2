@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Patch, Delete, UseGuards, Request, HttpStatus, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete, UseGuards, Request, HttpStatus, HttpCode, Put } from '@nestjs/common';
 import { CompaniesService } from './companies.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateCompanyDto } from './dtos/create-company.dto';
@@ -36,7 +36,7 @@ export class CompaniesController {
     return company;
   }
 
-  @Patch(':uuid')
+  @Put(':uuid')
   async update(
     @Param('uuid') uuid: string,
     @Body() updateCompanyDto: UpdateCompanyDto,
