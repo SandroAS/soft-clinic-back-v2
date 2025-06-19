@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../entities/user.entity';
-import { randomBytes, scrypt as _scrypt } from 'crypto';
+import { randomBytes, timingSafeEqual, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { RolesTypes } from '../roles/dtos/roles-types.dto';
@@ -12,7 +12,7 @@ import { AuthSignupDto } from '../auth/dtos/auth-signup';
 import { UpdateUserPersonalInformationDto } from './dtos/update-user-personal-information.dto';
 import { MinioService } from '@/minio/minio.service';
 import { UpdateUserPersonalInformationResponseDto } from './dtos/update-user-personal-information-response.dto';
-import * as path from 'path';
+import { UpdateUserPasswordDto } from './dtos/update-user-password.dto';
 
 const scrypt = promisify(_scrypt);
 
@@ -173,6 +173,32 @@ export class UsersService {
     await this.userRepository.save(user);
 
     return { profile_img_url: newImageUrl };
+  }
+
+  async updateUserPassword(uuid: string, body: UpdateUserPasswordDto, user: User): Promise<boolean> {
+    try {
+
+      if(user.password) {
+        const [salt, storedHash] = user.password.split('.');
+        const hashedBuffer = (await scrypt(body.current_password, salt, 32)) as Buffer;
+        const storedBuffer = Buffer.from(storedHash, 'hex');
+        const passwordsMatch = storedBuffer.length === hashedBuffer.length && timingSafeEqual(storedBuffer, hashedBuffer);
+        if (!passwordsMatch) {
+          throw new BadRequestException('Senha atual cadastrada não conincide com a senha atual informada.');
+        }
+      }
+
+      const salt = randomBytes(8).toString('hex');
+      const hash = (await scrypt(body.new_password, salt, 32)) as Buffer;
+      user.password = salt + '.' + hash.toString('hex');
+
+      Object.assign(user, body);
+      await this.userRepository.save(user);
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
   }
 
   async remove(id: number) {

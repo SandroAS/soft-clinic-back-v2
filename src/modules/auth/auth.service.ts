@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { randomBytes, timingSafeEqual, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';
 import AppDataSource from '@/data-source';

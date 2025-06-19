@@ -32,6 +32,9 @@ export class AuthResponseDto {
   is_active: boolean;
 
   @Expose()
+  password?: string;
+
+  @Expose()
   @Type(() => RoleResponseDto)
   role: RoleResponseDto;
 
@@ -56,6 +59,7 @@ export class AuthResponseDto {
     this.profile_img_url = partial.profile_img_url;
     this.gender = partial.gender;
     this.is_active = partial.is_active;
+    this.password = partial.password ? 'passworldAlreadySet' : null;
     this.role = null;
     this.account = null;
     this.userMetas = [];
