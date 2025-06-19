@@ -101,7 +101,7 @@ export class AuthService {
   }
 
   async login(email: string, password?: string, googleProfile?: GoogleProfileParsed): Promise<{ user: AuthResponseDto; accessToken: string }> {
-    const user = await this.usersService.findByEmail(email, ['account.lastTrial', 'account.systemModules', 'role.permissions', 'userMetas']);
+    const user = await this.usersService.findByEmail(email, ['account.lastTrial', 'account.systemModules', 'role.permissions', 'userMetas', 'companies.address']);
 
     if (!user) {
       throw new NotFoundException('Usuário não encontrado ao tentar logar.');

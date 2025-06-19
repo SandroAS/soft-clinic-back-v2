@@ -90,6 +90,15 @@ export class UsersService {
         relations,
       });
 
+      if (user.profile_img_url && !user.profile_img_url.includes('googleusercontent')) {
+        try {
+          user.profile_img_url = await this.minioService.getPresignedUrl(user.profile_img_url);
+        } catch (err) {
+          this.minioService['logger'].error(`Falha ao tentar gerar url assinada para usuário, image '${user.profile_img_url}': ${err.message}`);
+          user.profile_img_url = null;
+        }
+      }
+
       if(relations.includes('role.permissions') && user?.role?.permissions) {
         user.role.permissions = user.role.permissions.map(permission => {
           return permission.name;
