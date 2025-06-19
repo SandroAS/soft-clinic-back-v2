@@ -27,7 +27,7 @@ export class CompanyAuthResponseDto {
   constructor(partial: Company) {
     this.uuid = partial.uuid;
     this.name = partial.name;
-    this.social_reason = partial.uuid;
+    this.social_reason = partial.social_reason;
     this.cnpj = partial.cnpj;
     this.cellphone = partial.cellphone;
     this.email = partial.email;
