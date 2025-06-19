@@ -7,7 +7,7 @@ import { CompanyResponseDto } from './dtos/company-response.dto';
 import { User } from 'src/entities/user.entity';
 
 @UseGuards(JwtAuthGuard)
-@Controller('companies')
+@Controller('company')
 export class CompaniesController {
   constructor(private readonly companyService: CompaniesService) {}
 
