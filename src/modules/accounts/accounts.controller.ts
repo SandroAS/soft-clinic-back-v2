@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards, Request } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { UpdateAccountDto } from './dtos/update-account.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { User } from '@/entities/user.entity';
 
 
-@Controller('accounts')
+@Controller('account')
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
@@ -13,10 +15,12 @@ export class AccountsController {
   //   return this.accountsService.create(data);
   // }
 
-  // @Get()
-  // findAll() {
-  //   return this.accountsService.findAll();
-  // }
+  @Get('users')
+  @UseGuards(JwtAuthGuard)
+  findAll(@Request() req) {
+    const user: User = req.user;
+    return this.accountsService.findAllAccountUsers(user);
+  }
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {
