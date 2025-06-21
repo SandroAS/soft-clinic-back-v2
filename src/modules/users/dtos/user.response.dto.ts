@@ -19,6 +19,9 @@ export class UserResponseDto {
   cpf: string;
 
   @Expose()
+  is_active: boolean;
+
+  @Expose()
   gender: Gender;
 
   @Expose()
@@ -33,6 +36,7 @@ export class UserResponseDto {
     this.email = partial.email;
     this.cellphone = partial.cellphone;
     this.cpf = partial.cpf;
+    this.is_active = partial.is_active;
     this.gender = partial.gender;
     this.profile_img_url = partial.profile_img_url;
 
