@@ -4,6 +4,7 @@ import { CreateAccountDto } from './dtos/create-account.dto';
 import { UpdateAccountDto } from './dtos/update-account.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '@/entities/user.entity';
+import { CreateAccountUserDto } from './dtos/create-account-user.dto';
 
 
 @Controller('account')
@@ -14,6 +15,13 @@ export class AccountsController {
   // create(@Body() data: CreateAccountDto) {
   //   return this.accountsService.create(data);
   // }
+
+  @Post('users')
+  @UseGuards(JwtAuthGuard)
+  create(@Body() data: CreateAccountUserDto, @Request() req) {
+    const user: User = req.user;
+    return this.accountsService.createAccountUser(data, user);
+  }
 
   @Get('users')
   @UseGuards(JwtAuthGuard)

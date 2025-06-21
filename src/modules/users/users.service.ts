@@ -13,6 +13,7 @@ import { UpdateUserPersonalInformationDto } from './dtos/update-user-personal-in
 import { MinioService } from '@/minio/minio.service';
 import { UpdateUserPersonalInformationResponseDto } from './dtos/update-user-personal-information-response.dto';
 import { UpdateUserPasswordDto } from './dtos/update-user-password.dto';
+import { CreateAccountUserDto } from '../accounts/dtos/create-account-user.dto';
 
 const scrypt = promisify(_scrypt);
 
@@ -30,7 +31,7 @@ export class UsersService {
     const role = await this.rolesService.findByName(roleName);
 
     if (!role) {
-      throw new NotFoundException('Role não encontrada');
+      throw new NotFoundException('Tipo de usuário não encontrado');
     }
 
     let user: User;
@@ -46,6 +47,20 @@ export class UsersService {
     }
 
     user.role.permissions = role.permissions;
+
+    return userRepository.save(user);
+  }
+
+  async createSecondaryUser(roleName: RolesTypes, accountUser: CreateAccountUserDto, account_id: number, manager?: EntityManager): Promise<User> {
+    const userRepository = manager ? manager.getRepository(User) : this.userRepository;
+    const role = await this.rolesService.findByName(roleName);
+
+    if (!role) {
+      throw new NotFoundException('Tipo de usuário não encontrado');
+    }
+
+    const { email, password, name, cellphone, cpf } = accountUser;
+    const user = userRepository.create({ role, email, password, name, cellphone, cpf, account_id });
 
     return userRepository.save(user);
   }

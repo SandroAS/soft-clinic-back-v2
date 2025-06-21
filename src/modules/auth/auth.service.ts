@@ -13,6 +13,7 @@ import { GoogleProfileParsed } from './dtos/google-profile-parsed.dta';
 import { AuthSignupDto } from './dtos/auth-signup';
 import { UserMetasService } from '../user-metas/user-metas.service';
 import { UserMetasResponseDto } from '../user-metas/dtos/user-metas-response.dto';
+import { RolesTypes } from '../roles/dtos/roles-types.dto';
 
 const scrypt = promisify(_scrypt);
 
@@ -58,7 +59,7 @@ export class AuthService {
         const hashBuffer = (await scrypt(controllerProfile.password, salt, 32)) as Buffer;
         controllerProfile.password = salt + '.' + hashBuffer.toString('hex');
 
-        user = await this.usersService.create('ADMIN', controllerProfile, null, queryRunner.manager);
+        user = await this.usersService.create(RolesTypes.ADMIN, controllerProfile, null, queryRunner.manager);
 
         if(controllerProfile.termsAccepted) {
           const termsOfService = await this.userMetasService.create(user.id, 'TERMS_OF_SERVICE', 'ACCEPTED', 'v1.0.0', queryRunner.manager);
@@ -67,7 +68,7 @@ export class AuthService {
         }
 
       } else {
-        user = await this.usersService.create('ADMIN', null, googleProfile, queryRunner.manager);
+        user = await this.usersService.create(RolesTypes.ADMIN, null, googleProfile, queryRunner.manager);
       }
 
       const account = await this.accountsService.create({ admin_id: user.id }, queryRunner.manager);

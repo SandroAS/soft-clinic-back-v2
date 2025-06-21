@@ -5,12 +5,14 @@ import { AccountsService } from './accounts.service';
 import { AccountsController } from './accounts.controller';
 import { SystemModulesModule } from '../system-modules/system-modules.module';
 import { MinioModule } from '@/minio/minio.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Account]),
     SystemModulesModule,
-    MinioModule
+    MinioModule,
+    UsersModule
   ],
   providers: [AccountsService],
   controllers: [AccountsController],

@@ -1,8 +1,9 @@
-import { IsString, IsNotEmpty, IsEmail, MinLength, IsBoolean, IsOptional, MaxLength, Equals } from 'class-validator';
+import { IsString, IsNotEmpty, IsEmail, MinLength, IsOptional, MaxLength, IsEnum } from 'class-validator';
 import { IsCpf } from '@/common/validators/is-cpf.validator';
+import { RolesTypes } from '@/modules/roles/dtos/roles-types.dto';
 import { MatchPassword } from '@/common/validators/match-password.validator';
 
-export class AuthSignupDto {
+export class CreateAccountUserDto {
   @IsString({ message: 'O nome deve ser uma string.' })
   @IsNotEmpty({ message: 'O nome é obrigatório.' })
   @MinLength(3, { message: 'O nome deve ter pelo menos 3 caracteres.' })
@@ -23,11 +24,6 @@ export class AuthSignupDto {
   @IsCpf({ message: 'CPF inválido.' })
   cpf: string;
 
-  @IsString({ message: 'O tipo de clínica deve ser uma string.' })
-  @IsNotEmpty({ message: 'O tipo de clínica é obrigatório.' })
-  // Se 'clinicType' tiver valores fixos, pode usar @IsIn(['odontologica', 'psicologia'])
-  clinicType: string;
-
   @IsString({ message: 'A senha deve ser uma string.' })
   @IsNotEmpty({ message: 'A senha é obrigatória.' })
   @MinLength(6, { message: 'A senha deve ter pelo menos 6 caracteres.' })
@@ -39,7 +35,7 @@ export class AuthSignupDto {
   @MatchPassword('password', { message: 'A confirmação de senha não corresponde à senha.' })
   confirmPassword?: string;
 
-  @IsBoolean({ message: 'A aceitação dos termos deve ser um valor booleano.' })
-  @Equals(true, { message: 'Você deve aceitar os termos de serviço e política de privacidade.' })
-  termsAccepted: boolean;
+  @IsEnum(RolesTypes, { message: 'O tipo de usuário informado é inválido.' })
+  @IsNotEmpty({ message: 'O tipo de usuário é obrigatório.' })
+  role: RolesTypes;
 }

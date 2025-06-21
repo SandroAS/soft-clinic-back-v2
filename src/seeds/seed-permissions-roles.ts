@@ -1,3 +1,4 @@
+import { RolesTypes } from '@/modules/roles/dtos/roles-types.dto';
 import AppDataSource from '../data-source';
 import { Permission } from '../entities/permission.entity';
 import { Role } from '../entities/role.entity';
@@ -131,9 +132,9 @@ export async function seedPermissionsRoles() {
   const roleRepo = AppDataSource.getRepository(Role);
 
   // Cria role SUPER_ADMIN sem permissões vinculadas
-  let superAdminRole = await roleRepo.findOne({ where: { name: 'SUPER_ADMIN' } });
+  let superAdminRole = await roleRepo.findOne({ where: { name: RolesTypes.SUPER_ADMIN } });
   if (!superAdminRole) {
-    superAdminRole = roleRepo.create({ name: 'SUPER_ADMIN' });
+    superAdminRole = roleRepo.create({ name: RolesTypes.SUPER_ADMIN });
     await roleRepo.save(superAdminRole);
     console.log('✅ Role SUPER_ADMIN criada (sem permissões vinculadas).');
   } else {
@@ -154,10 +155,10 @@ export async function seedPermissionsRoles() {
   console.log(`✅ ${permissionEntities.length} permissões criadas ou encontradas.`);
 
   // Cria role ADMIN com todas as permissões
-  let adminRole = await roleRepo.findOne({ where: { name: 'ADMIN' } });
+  let adminRole = await roleRepo.findOne({ where: { name: RolesTypes.ADMIN } });
   if (!adminRole) {
     adminRole = roleRepo.create({
-      name: 'ADMIN',
+      name: RolesTypes.ADMIN,
       permissions: permissionEntities,
     });
     await roleRepo.save(adminRole);
@@ -167,13 +168,13 @@ export async function seedPermissionsRoles() {
   }
 
   // Criar role ASSISTANT com permissões restritas para assistentes
-  let assistantRole = await roleRepo.findOne({ where: { name: 'ASSISTANT' } });
+  let assistantRole = await roleRepo.findOne({ where: { name: RolesTypes.ASSISTANT } });
   if (!assistantRole) {
     const assistantPermissions = permissionEntities.filter(
       (p) => !restrictedByAssistant.includes(p.name)
     );
     assistantRole = roleRepo.create({
-      name: 'ASSISTANT',
+      name: RolesTypes.ASSISTANT,
       permissions: assistantPermissions,
     });
     await roleRepo.save(assistantRole);
@@ -183,13 +184,13 @@ export async function seedPermissionsRoles() {
   }
 
   // Criar role HEALTHCARE_PROFESSIONAL com permissões restritas para profissionais de saúde
-  let professionalRole = await roleRepo.findOne({ where: { name: 'HEALTHCARE_PROFESSIONAL' } });
+  let professionalRole = await roleRepo.findOne({ where: { name: RolesTypes.HEALTHCARE_PROFESSIONAL } });
   if (!professionalRole) {
     const professionalPermissions = permissionEntities.filter(
       (p) => !restrictedByProfessional.includes(p.name)
     );
     professionalRole = roleRepo.create({
-      name: 'HEALTHCARE_PROFESSIONAL',
+      name: RolesTypes.HEALTHCARE_PROFESSIONAL,
       permissions: professionalPermissions,
     });
     await roleRepo.save(professionalRole);

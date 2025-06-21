@@ -31,7 +31,7 @@ export class CompaniesService {
       this.logger.warn(`Tentativa de criar empresa com CNPJ já existente: ${createCompanyDto.cnpj}`);
       throw new ConflictException('Já existe uma empresa cadastrada com este CNPJ.');
     }
-    // PARA ASSISTENT depois fazer a logica de dar opcao de usar mesma empresa da conta do ADMIN se existir
+    // PARA ASSISTANT depois fazer a logica de dar opcao de usar mesma empresa da conta do ADMIN se existir
 
     const company = this.companyRepository.create({
       ...createCompanyDto,

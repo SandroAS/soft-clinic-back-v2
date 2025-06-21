@@ -1,4 +1,5 @@
 import { Gender, User } from '@/entities/user.entity';
+import { RoleResponseDto } from '@/modules/roles/dtos/role-response.dto';
 import { Expose } from 'class-transformer';
 
 export class UserResponseDto {
@@ -23,6 +24,9 @@ export class UserResponseDto {
   @Expose()
   profile_img_url: string;
 
+  @Expose()
+  role: RoleResponseDto
+
   constructor(partial: User) {
     this.uuid = partial.uuid;
     this.name = partial.name;
@@ -31,5 +35,9 @@ export class UserResponseDto {
     this.cpf = partial.cpf;
     this.gender = partial.gender;
     this.profile_img_url = partial.profile_img_url;
+
+    if (partial.role) {
+      this.role = new RoleResponseDto(partial.role);
+    }
   }
 }

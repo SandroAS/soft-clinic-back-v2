@@ -25,6 +25,7 @@ export class RolesService {
       .leftJoinAndSelect('role.permissions', 'permission')
       .select([
         'role.id',
+        'role.uuid',
         'role.name',
         'permission.name',
       ])
@@ -52,7 +53,7 @@ export class RolesService {
   async assignPermissions(roleId: number, permissionIds: number[]) {
     const role = await this.roleRepository.findOne({ where: { id: roleId }, relations: ['permissions'] });
     if (!role) {
-      throw new NotFoundException('Role not found');
+      throw new NotFoundException('Tipo de usuário não encontrado.');
     }
 
     const permissions = await this.permissionsService.findByIds(permissionIds);
