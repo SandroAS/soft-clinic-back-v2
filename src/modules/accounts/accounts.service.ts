@@ -15,6 +15,8 @@ import AppDataSource from '@/data-source';
 import { randomBytes, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';
 import { RolesTypes } from '../roles/dtos/roles-types.dto';
+import { UpdateAccountUserDto } from './dtos/update-account-user-dto';
+import { RolesService } from '../roles/roles.service';
 
 const scrypt = promisify(_scrypt);
 
@@ -25,7 +27,8 @@ export class AccountsService {
     private readonly accountRepository: Repository<Account>,
     private readonly systemModuleService: SystemModulesService,
     private readonly minioService: MinioService,
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
+    private readonly rolesService: RolesService
   ) {}
 
   async create(data: CreateAccountDto, manager?: EntityManager): Promise<Account> {
@@ -135,6 +138,23 @@ export class AccountsService {
 
     Object.assign(account, data);
     return accountRepository.save(account);
+  }
+
+  async updateAccountUser(uuid: string, accountUser: UpdateAccountUserDto, authUser: User) {
+    const user = await this.usersService.findByUuid(uuid);
+    const role = await this.rolesService.findByName(accountUser.role);
+
+    if (!role) {
+      throw new NotFoundException('Tipo de usuário não encontrado');
+    }
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado ao tentar atualizar.');
+    }
+
+    Object.assign(user, accountUser);
+    await this.usersService.update(user.id, user);
+    return { uuid, role: { uuid: role.uuid } };
   }
 
   async remove(id: number): Promise<void> {
