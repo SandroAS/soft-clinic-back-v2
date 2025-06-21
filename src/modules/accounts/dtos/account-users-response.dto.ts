@@ -13,7 +13,7 @@ export class AccountUsersResponseDto {
   constructor(accountUser: Account) {
     this.uuid = accountUser.uuid;
     this.users = [];
-
+console.log(accountUser)
     if (accountUser.users && accountUser.users.length > 0) {
       this.users = accountUser.users.map(
         (user) => new UserResponseDto(user)

@@ -51,6 +51,14 @@ export class AccountsService {
       throw new BadRequestException('E-mail já está em uso, escolha outro.');
     }
 
+    if(accountUser.role === RolesTypes.ADMIN) {
+      throw new BadRequestException('Uma conta só pode ter um único usuário ADMIN.');
+    }
+
+    if(accountUser.role === RolesTypes.SUPER_ADMIN) {
+      throw new BadRequestException('Não é possível cadastrar novos usuários SUPER_ADMIN no sistema.');
+    }
+
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -62,7 +70,7 @@ export class AccountsService {
 
       const account = await this.findOne(user.account_id, queryRunner.manager);
 
-      const userCreated = await this.usersService.createSecondaryUser(RolesTypes.ADMIN, accountUser, account.id, queryRunner.manager);
+      const userCreated = await this.usersService.createSecondaryUser(RolesTypes[accountUser.role], accountUser, account.id, queryRunner.manager);
 
       await queryRunner.commitTransaction();
 
@@ -86,18 +94,26 @@ export class AccountsService {
       throw new NotFoundException('Conta não encontrada ao tentar buscar usuários relacionados a ela.');
     }
 
-    accountUsers.users = await Promise.all(accountUsers.users.map(async user => {
-      if (user.profile_img_url && !user.profile_img_url.includes('googleusercontent')) {
-        try {
-          user.profile_img_url = await this.minioService.getPresignedUrl(user.profile_img_url);
-          return user;
-        } catch (err) {
-          this.minioService['logger'].error(`Falha ao tentar gerar url assinada para usuário, image '${user.profile_img_url}': ${err.message}`);
-          user.profile_img_url = null;
-          return user;
+    const usersWithPresignedUrls = await Promise.all(
+      accountUsers.users.map(async (u) => {
+        // Clone the user instance to preserve class methods
+        const userInstance = Object.setPrototypeOf({ ...u }, User.prototype);
+
+        if (userInstance.profile_img_url && !userInstance.profile_img_url.includes('googleusercontent')) {
+          try {
+            userInstance.profile_img_url = await this.minioService.getPresignedUrl(userInstance.profile_img_url);
+            return userInstance;
+          } catch (err) {
+            this.minioService['logger'].error(`Falha ao tentar gerar url assinada para usuário, imagem '${userInstance.profile_img_url}': ${err.message}`);
+            userInstance.profile_img_url = null;
+            return userInstance;
+          }
         }
-      }
-    }));
+        return userInstance;
+      }),
+    );
+
+    accountUsers.users = usersWithPresignedUrls as User[];
 
     return new AccountUsersResponseDto(accountUsers);
   }
