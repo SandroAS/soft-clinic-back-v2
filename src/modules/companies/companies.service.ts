@@ -120,7 +120,6 @@ export class CompaniesService {
 
     try {
       const updatedCompany = await this.companyRepository.save(company);
-      console.log(updatedCompany)
       return new CompanyResponseDto(updatedCompany);
     } catch (err) {
       this.logger.error(`Error ao tentar atualizar empresa ${uuid}: ${err.message}`, err.stack);
