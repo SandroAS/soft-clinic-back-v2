@@ -153,7 +153,8 @@ export class AccountsService {
     }
 
     Object.assign(user, accountUser);
-    await this.usersService.update(user.id, user);
+    user.role = role;
+    await this.usersService.update(user.id, { ...user });
     return { uuid, role: { uuid: role.uuid } };
   }
 
