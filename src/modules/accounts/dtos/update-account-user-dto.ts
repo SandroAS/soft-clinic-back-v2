@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsEmail, MinLength, IsOptional, MaxLength, IsEnum } from 'class-validator';
+import { IsString, IsNotEmpty, IsEmail, MinLength, IsOptional, MaxLength, IsEnum, ValidateIf } from 'class-validator';
 import { IsCpf } from '@/common/validators/is-cpf.validator';
 import { RolesTypes } from '@/modules/roles/dtos/roles-types.dto';
 import { MatchPassword } from '@/common/validators/match-password.validator';
@@ -26,14 +26,21 @@ export class UpdateAccountUserDto {
 
   @IsOptional()
   @IsString({ message: 'A senha deve ser uma string.' })
-  @IsNotEmpty({ message: 'A senha é obrigatória.' })
   @MinLength(6, { message: 'A senha deve ter pelo menos 6 caracteres.' })
-  password: string;
+  @ValidateIf((obj, value) => value !== undefined && value !== null && value !== '')
+  password?: string;
 
   @IsOptional()
   @IsString({ message: 'A confirmação de senha deve ser uma string.' })
-  @IsNotEmpty({ message: 'A confirmação de senha é obrigatória quando fornecida.' })
-  @MatchPassword('password', { message: 'A confirmação de senha não corresponde à senha.' })
+  @ValidateIf((obj, value) => value !== undefined && value !== null && value !== '')
+  @MatchPassword('password', {
+    message: 'A confirmação de senha não corresponde à senha.',
+    each: true,
+    context: {
+      passwordProvided: true,
+      confirmPasswordProvided: true
+    }
+  })
   confirmPassword?: string;
 
   @IsEnum(RolesTypes, { message: 'O tipo de usuário informado é inválido.' })

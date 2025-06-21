@@ -1,13 +1,5 @@
 import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator';
 
-/**
- * Decorator para verificar se duas propriedades de um objeto são iguais.
- * Ideal para validação de senha e confirmação de senha.
- *
- * Exemplo de uso:
- * @MatchPassword('password', { message: 'As senhas não coincidem.' })
- * confirmPassword: string;
- */
 export function MatchPassword(property: string, validationOptions?: ValidationOptions) {
   return (object: Object, propertyName: string) => {
     registerDecorator({
@@ -20,11 +12,17 @@ export function MatchPassword(property: string, validationOptions?: ValidationOp
         validate(value: any, args: ValidationArguments) {
           const [relatedPropertyName] = args.constraints;
           const relatedValue = (args.object as any)[relatedPropertyName];
+
+          if ((value === undefined || value === null || value === '') &&
+              (relatedValue === undefined || relatedValue === null || relatedValue === '')) {
+            return true;
+          }
+
           return value === relatedValue;
         },
         defaultMessage(args: ValidationArguments) {
           const [relatedPropertyName] = args.constraints;
-          return `A ${args.property} (${args.value}) deve ser igual a ${relatedPropertyName} (${(args.object as any)[relatedPropertyName]}).`;
+          return `A confirmação de senha (${args.property}) não corresponde à senha (${relatedPropertyName}).`;
         },
       },
     });
