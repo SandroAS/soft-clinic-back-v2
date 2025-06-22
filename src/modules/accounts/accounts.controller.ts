@@ -21,9 +21,9 @@ export class AccountsController {
 
   @Get('users')
   @UseGuards(JwtAuthGuard)
-  findAllAccountUsers(@Request() req, @Query() paginationDto: PaginationDto) {
+  findAllAccountUsers(@Request() req, @Query() pagination: PaginationDto) {
     const user: User = req.user as User;
-    return this.accountsService.findAllAccountUsersWithPagination(user, paginationDto);
+    return this.accountsService.findAllAccountUsersWithPagination(user, pagination);
   }
 
   @Put('users/:uuid')

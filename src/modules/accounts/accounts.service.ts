@@ -106,28 +106,17 @@ export class AccountsService {
     return new AccountUsersResponseDto(account);
   }
 
-  async findAllAccountUsersWithPagination(user: User, paginationDto: PaginationDto): Promise<AccountUsersResponsePaginationDto> {
-    const page = parseInt(paginationDto.page || '1', 10);
-    const limit = parseInt(paginationDto.limit || '10', 10);
-    const skip = (page - 1) * limit;
-
-    const [accountUsers, total] = await this.accountRepository
-      .createQueryBuilder('account')
-      .leftJoinAndSelect('account.users', 'user')
-      .leftJoinAndSelect('user.role', 'role')
-      .where('account.id = :accountId', { accountId: user.account_id })
-      .orderBy('user.name', 'ASC')
-      .skip(skip)
-      .take(limit)
-      .getManyAndCount();
-
-    if (!accountUsers || accountUsers.length === 0) {
+  async findAllAccountUsersWithPagination(user: User, pagination: PaginationDto): Promise<AccountUsersResponsePaginationDto> {
+    const page = parseInt(pagination.page || '1', 10);
+    const limit = parseInt(pagination.limit || '10', 10);
+    console.log(page, limit)
+    const [users, total] = await this.usersService.findAndPaginateByAccountId(user.account_id, page, limit );
+    console.log(users)
+    if (!users || users.length === 0) {
       return new AccountUsersResponsePaginationDto({ data: [], total: 0, page, last_page: 0, limit });
     }
 
-    const account = accountUsers[0];
-
-    const usersWithPresignedUrls = await this.minioService.processUsersWithPresignedUrls(account.users);
+    const usersWithPresignedUrls = await this.minioService.processUsersWithPresignedUrls(users);
 
     const lastPage = Math.ceil(total / limit);
 

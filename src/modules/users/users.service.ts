@@ -139,6 +139,21 @@ export class UsersService {
     return await user.getOne();
   }
 
+  async findAndPaginateByAccountId(accountId: number, page: number, limit: number): Promise<[User[], number]> {
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.role', 'role')
+      .where('user.account_id = :accountId', { accountId })
+      .orderBy('user.created_at', 'ASC')
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+
+    return [users, total];
+  }
+
   async update(id: number, body: UpdateUserDto, manager?: EntityManager): Promise<User> {
     const userRepository = manager ? manager.getRepository(User) : this.userRepository;
     const user = await this.findOne(id, ['account'], manager);
