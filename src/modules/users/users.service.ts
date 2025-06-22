@@ -139,17 +139,45 @@ export class UsersService {
     return await user.getOne();
   }
 
-  async findAndPaginateByAccountId(accountId: number, page: number, limit: number): Promise<[User[], number]> {
+  async findAndPaginateByAccountId(accountId: number, page: number, limit: number, sortColumn?: string, sortOrder?: 'asc' | 'desc',): Promise<[User[], number]> {
     const skip = (page - 1) * limit;
 
-    const [users, total] = await this.userRepository
+    const queryBuilder = this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.role', 'role')
       .where('user.account_id = :accountId', { accountId })
-      .orderBy('user.created_at', 'ASC')
       .skip(skip)
-      .take(limit)
-      .getManyAndCount();
+      .take(limit);
+
+    if (sortColumn) {
+
+      let orderByColumn: string;
+      switch (sortColumn) {
+        case 'name':
+          orderByColumn = 'user.name';
+          break;
+        case 'email':
+          orderByColumn = 'user.email';
+          break;
+        case 'cellphone':
+          orderByColumn = 'user.cellphone';
+          break;
+        case 'role.name':
+          orderByColumn = 'role.name';
+          break;
+        case 'is_active':
+          orderByColumn = 'user.is_active';
+          break;
+        default:
+          orderByColumn = 'user.created_at';
+          sortOrder = 'asc';
+      }
+      queryBuilder.orderBy(orderByColumn, sortOrder === 'desc' ? 'DESC' : 'ASC');
+    } else {
+      queryBuilder.orderBy('user.created_at', 'ASC');
+    }
+
+    const [users, total] = await queryBuilder.getManyAndCount();
 
     return [users, total];
   }

@@ -109,9 +109,12 @@ export class AccountsService {
   async findAllAccountUsersWithPagination(user: User, pagination: PaginationDto): Promise<AccountUsersResponsePaginationDto> {
     const page = parseInt(pagination.page || '1', 10);
     const limit = parseInt(pagination.limit || '10', 10);
-    console.log(page, limit)
-    const [users, total] = await this.usersService.findAndPaginateByAccountId(user.account_id, page, limit );
-    console.log(users)
+
+    const sortColumn = pagination.sort_column;
+    const sortOrder = pagination.sort_order;
+
+    const [users, total] = await this.usersService.findAndPaginateByAccountId(user.account_id, page, limit, sortColumn, sortOrder );
+
     if (!users || users.length === 0) {
       return new AccountUsersResponsePaginationDto({ data: [], total: 0, page, last_page: 0, limit });
     }
