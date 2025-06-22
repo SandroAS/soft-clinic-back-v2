@@ -112,8 +112,9 @@ export class AccountsService {
 
     const sortColumn = pagination.sort_column;
     const sortOrder = pagination.sort_order;
+    const searchTerm = pagination.search_term;
 
-    const [users, total] = await this.usersService.findAndPaginateByAccountId(user.account_id, page, limit, sortColumn, sortOrder );
+    const [users, total] = await this.usersService.findAndPaginateByAccountId(user.account_id, page, limit, sortColumn, sortOrder, searchTerm);
 
     if (!users || users.length === 0) {
       return new AccountUsersResponsePaginationDto({ data: [], total: 0, page, last_page: 0, limit });

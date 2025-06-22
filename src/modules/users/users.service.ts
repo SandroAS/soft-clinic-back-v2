@@ -139,18 +139,25 @@ export class UsersService {
     return await user.getOne();
   }
 
-  async findAndPaginateByAccountId(accountId: number, page: number, limit: number, sortColumn?: string, sortOrder?: 'asc' | 'desc',): Promise<[User[], number]> {
+  async findAndPaginateByAccountId(accountId: number, page: number, limit: number, sortColumn?: string, sortOrder?: 'asc' | 'desc', searchTerm?: string,): Promise<[User[], number]> {
     const skip = (page - 1) * limit;
 
     const queryBuilder = this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.role', 'role')
-      .where('user.account_id = :accountId', { accountId })
-      .skip(skip)
-      .take(limit);
+      .where('user.account_id = :accountId', { accountId });
+
+    if (searchTerm) {
+      queryBuilder.andWhere(
+        `(LOWER(user.name) LIKE LOWER(:searchTerm) OR 
+          LOWER(user.email) LIKE LOWER(:searchTerm) OR 
+          LOWER(user.cellphone) LIKE LOWER(:searchTerm) OR 
+          LOWER(role.name) LIKE LOWER(:searchTerm))`,
+        { searchTerm: `%${searchTerm}%` }
+      );
+    }
 
     if (sortColumn) {
-
       let orderByColumn: string;
       switch (sortColumn) {
         case 'name':
@@ -177,9 +184,9 @@ export class UsersService {
       queryBuilder.orderBy('user.created_at', 'ASC');
     }
 
-    const [users, total] = await queryBuilder.getManyAndCount();
+    queryBuilder.skip(skip).take(limit);
 
-    return [users, total];
+    return await queryBuilder.getManyAndCount();
   }
 
   async update(id: number, body: UpdateUserDto, manager?: EntityManager): Promise<User> {
