@@ -158,6 +158,21 @@ export class AccountsService {
     return { uuid, role: { uuid: role.uuid } };
   }
 
+  async updateAccountUserIsActive(uuid: string): Promise<boolean> {
+    const user = await this.usersService.findByUuid(uuid);
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado ao tentar atualizar.');
+    }
+
+    try {
+      await this.usersService.update(user.id, { ...user, is_active: !user.is_active });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
   async remove(id: number): Promise<void> {
     const account = await this.findOne(id);
 

@@ -1,5 +1,5 @@
 import { Gender } from '@/entities/user.entity';
-import { IsEmail, IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsEmail, IsString, IsOptional, IsNumber, IsBoolean } from 'class-validator';
 
 export class UpdateUserDto {
   @IsString()
@@ -21,6 +21,10 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   gender?: Gender;
+
+  @IsBoolean()
+  @IsOptional()
+  is_active?: boolean;
 
   @IsString()
   @IsOptional()

@@ -33,6 +33,12 @@ export class AccountsController {
     return this.accountsService.updateAccountUser(uuid, data, user);
   }
 
+  @Patch('users/is-active/:uuid')
+  @UseGuards(JwtAuthGuard)
+  updateAccountUserIsActive(@Param('uuid') uuid: string) {
+    return this.accountsService.updateAccountUserIsActive(uuid);
+  }
+
   // @Post()
   // create(@Body() data: CreateAccountDto) {
   //   return this.accountsService.create(data);
