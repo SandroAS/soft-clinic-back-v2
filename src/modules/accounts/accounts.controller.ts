@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards, Request, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards, Request, Put, Query } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { UpdateAccountDto } from './dtos/update-account.dto';
@@ -6,7 +6,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '@/entities/user.entity';
 import { CreateAccountUserDto } from './dtos/create-account-user.dto';
 import { UpdateAccountUserDto } from './dtos/update-account-user-dto';
-
+import { PaginationDto } from '@/common/dtos/pagination.dto';
 
 @Controller('account')
 export class AccountsController {
@@ -21,9 +21,9 @@ export class AccountsController {
 
   @Get('users')
   @UseGuards(JwtAuthGuard)
-  findAllAccountUsers(@Request() req) {
-    const user: User = req.user;
-    return this.accountsService.findAllAccountUsers(user);
+  findAllAccountUsers(@Request() req, @Query() paginationDto: PaginationDto) {
+    const user: User = req.user as User;
+    return this.accountsService.findAllAccountUsersWithPagination(user, paginationDto);
   }
 
   @Put('users/:uuid')

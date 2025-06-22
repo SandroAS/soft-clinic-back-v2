@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import * as Minio from 'minio';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import { User } from '@/entities/user.entity';
 
 @Injectable()
 export class MinioService implements OnModuleInit {
@@ -106,6 +107,23 @@ export class MinioService implements OnModuleInit {
       this.logger.error(`Error generating presigned URL for '${objectName}': ${err.message}`);
       throw new InternalServerErrorException('Error generating presigned URL.');
     }
+  }
+
+  async processUsersWithPresignedUrls(users: User[]): Promise<User[]> {
+    const processedUsers = await Promise.all(
+      users.map(async (user) => {
+        if (user.profile_img_url && !user.profile_img_url.includes('googleusercontent')) {
+          try {
+            user.profile_img_url = await this.getPresignedUrl(user.profile_img_url);
+          } catch (err) {
+            this.logger.error(`Falha ao tentar gerar URL assinada para imagem '${user.profile_img_url}' (usuário UUID: ${user.uuid}): ${err.message}`);
+            user.profile_img_url = null;
+          }
+        }
+        return user;
+      }),
+    );
+    return processedUsers;
   }
 
   /**

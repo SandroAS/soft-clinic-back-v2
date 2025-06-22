@@ -17,6 +17,8 @@ import { promisify } from 'util';
 import { RolesTypes } from '../roles/dtos/roles-types.dto';
 import { UpdateAccountUserDto } from './dtos/update-account-user-dto';
 import { RolesService } from '../roles/roles.service';
+import { PaginationDto } from '@/common/dtos/pagination.dto';
+import { AccountUsersResponsePaginationDto } from './dtos/account-users-response-pagination.dto';
 
 const scrypt = promisify(_scrypt);
 
@@ -91,34 +93,45 @@ export class AccountsService {
   }
 
   async findAllAccountUsers(user: User): Promise<AccountUsersResponseDto> {
-    const accountUsers: Account = await this.accountRepository.findOne({ where: { id: user.account_id }, relations: ['users.role'] });
+    const account: Account = await this.accountRepository.findOne({ where: { id: user.account_id }, relations: ['users.role'] });
 
-    if (!accountUsers) {
+    if (!account) {
       throw new NotFoundException('Conta não encontrada ao tentar buscar usuários relacionados a ela.');
     }
 
-    const usersWithPresignedUrls = await Promise.all(
-      accountUsers.users.map(async (u) => {
-        // Clone the user instance to preserve class methods
-        const userInstance = Object.setPrototypeOf({ ...u }, User.prototype);
+    const usersWithPresignedUrls = await this.minioService.processUsersWithPresignedUrls(account.users);
 
-        if (userInstance.profile_img_url && !userInstance.profile_img_url.includes('googleusercontent')) {
-          try {
-            userInstance.profile_img_url = await this.minioService.getPresignedUrl(userInstance.profile_img_url);
-            return userInstance;
-          } catch (err) {
-            this.minioService['logger'].error(`Falha ao tentar gerar url assinada para usuário, imagem '${userInstance.profile_img_url}': ${err.message}`);
-            userInstance.profile_img_url = null;
-            return userInstance;
-          }
-        }
-        return userInstance;
-      }),
-    );
+    account.users = usersWithPresignedUrls as User[];
 
-    accountUsers.users = usersWithPresignedUrls as User[];
+    return new AccountUsersResponseDto(account);
+  }
 
-    return new AccountUsersResponseDto(accountUsers);
+  async findAllAccountUsersWithPagination(user: User, paginationDto: PaginationDto): Promise<AccountUsersResponsePaginationDto> {
+    const page = parseInt(paginationDto.page || '1', 10);
+    const limit = parseInt(paginationDto.limit || '10', 10);
+    const skip = (page - 1) * limit;
+
+    const [accountUsers, total] = await this.accountRepository
+      .createQueryBuilder('account')
+      .leftJoinAndSelect('account.users', 'user')
+      .leftJoinAndSelect('user.role', 'role')
+      .where('account.id = :accountId', { accountId: user.account_id })
+      .orderBy('user.name', 'ASC')
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+
+    if (!accountUsers || accountUsers.length === 0) {
+      return new AccountUsersResponsePaginationDto({ data: [], total: 0, page, last_page: 0, limit });
+    }
+
+    const account = accountUsers[0];
+
+    const usersWithPresignedUrls = await this.minioService.processUsersWithPresignedUrls(account.users);
+
+    const lastPage = Math.ceil(total / limit);
+
+    return new AccountUsersResponsePaginationDto({ data: usersWithPresignedUrls, total, page, last_page: lastPage, limit });
   }
 
   async findOne(id: number, manager?: EntityManager): Promise<Account> {
