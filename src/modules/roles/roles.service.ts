@@ -13,8 +13,22 @@ export class RolesService {
     private readonly permissionsService: PermissionsService
   ) {}
 
-  findAll() {
-    return this.roleRepository.find({ relations: ['permissions'] });
+  async findAll() {
+    let roles = await this.roleRepository
+      .createQueryBuilder('role')
+      .where('role.name <> :name', { name: 'SUPER_ADMIN' })
+      .leftJoinAndSelect('role.permissions', 'permission')
+      .select([
+        'role.id',
+        'role.uuid',
+        'role.name',
+        'permission.name',
+      ])
+      .getMany();
+
+    return roles.map(role => {
+      return { ...role, permissions: role.permissions.map(permission => permission.name)}
+    })
   }
 
   async findByName(name: RolesTypes, manager?: EntityManager): Promise<Role | undefined> {
