@@ -139,9 +139,7 @@ export class UsersService {
     return await user.getOne();
   }
 
-  async findAndPaginateByAccountId(accountId: number, page: number, limit: number, sortColumn?: string, sortOrder?: 'asc' | 'desc', searchTerm?: string,): Promise<[User[], number]> {
-    const skip = (page - 1) * limit;
-
+  async findAndPaginateByAccountId(accountId: number, page: number, limit: number, sortColumn?: string, sortOrder?: 'asc' | 'desc', searchTerm?: string): Promise<[User[], number]> {
     const queryBuilder = this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.role', 'role')
@@ -184,6 +182,7 @@ export class UsersService {
       queryBuilder.orderBy('user.created_at', 'ASC');
     }
 
+    const skip = (page - 1) * limit;
     queryBuilder.skip(skip).take(limit);
 
     return await queryBuilder.getManyAndCount();

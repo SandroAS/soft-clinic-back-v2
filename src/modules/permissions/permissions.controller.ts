@@ -1,14 +1,16 @@
-import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
 import { PermissionsService } from './permissions.service';
 import { Permission } from '@/entities/permission.entity';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('permissions')
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
   @Get()
   findAll() {
-    return this.permissionsService.findAll();
+    return this.permissionsService.findAllArrayOfStrings();
   }
 
   @Get(':id')

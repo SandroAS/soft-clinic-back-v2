@@ -1,6 +1,7 @@
-import { Controller, Get, Param, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, UseGuards, Query } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PaginationDto } from '@/common/dtos/pagination.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('roles')
@@ -8,8 +9,8 @@ export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @Get()
-  findAll() {
-    return this.rolesService.findAll();
+  findAll(@Query() pagination: PaginationDto) {
+    return this.rolesService.findAllWithPaginationOptimized(pagination);
   }
 
   @Get(':id')

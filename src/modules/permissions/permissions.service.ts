@@ -14,6 +14,15 @@ export class PermissionsService {
     return this.permissionRepository.find();
   }
 
+  async findAllArrayOfStrings(): Promise<string[]> {
+    let permissions = await this.permissionRepository
+      .createQueryBuilder('permission')
+      .select(['permission.name'])
+      .getMany();
+
+    return permissions.map(permission => permission.name);
+  }
+
   async findOne(id: number): Promise<Permission> {
     const permission = await this.permissionRepository.findOneBy({ id });
     if (!permission) {
