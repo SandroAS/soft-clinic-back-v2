@@ -105,7 +105,7 @@ export class UsersService {
         relations,
       });
 
-      if (user.profile_img_url && !user.profile_img_url.includes('googleusercontent')) {
+      if (user?.profile_img_url && !user.profile_img_url.includes('googleusercontent')) {
         try {
           user.profile_img_url = await this.minioService.getPresignedUrl(user.profile_img_url);
         } catch (err) {

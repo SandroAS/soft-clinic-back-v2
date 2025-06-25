@@ -34,7 +34,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   ): Promise<any> {
     try {
       const email = profile.emails[0].value;
-      let userFoundByEmail = await this.usersService.findByEmail(email, ['account.lastTrial', 'role.permissions']);
+      let userFoundByEmail = await this.usersService.findByEmail(email, ['account.lastTrial', 'account.systemModules', 'role.permissions', 'userMetas', 'companies.address']);
 
       const googleProfile: GoogleProfileParsed = {
         google_id: profile.id,
