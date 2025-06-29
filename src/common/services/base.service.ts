@@ -1,6 +1,7 @@
 import { Repository, DeepPartial, FindManyOptions, FindOneOptions, EntityTarget } from 'typeorm';
 import { NotFoundException, Injectable } from '@nestjs/common';
 import { BaseEntity } from '../entities/base.entity';
+import { PaginationDto } from '../dtos/pagination.dto';
 
 export interface PaginationResult<T> {
   data: T[];
@@ -22,28 +23,42 @@ export abstract class BaseService<T extends BaseEntity> {
    */
   async create(data: DeepPartial<T>): Promise<T> {
     const newEntity = this.repository.create(data);
-    return await this.repository.save(newEntity as any);
+    return await this.repository.save(newEntity);
   }
 
-  /**
-   * Encontra todas as entidades com paginação e opções de busca/ordenação.
-   * @param page Número da página atual.
-   * @param limit Quantidade de itens por página.
-   * @param options Opções de FindManyOptions do TypeORM (para where, order, relations, etc.).
-   * @returns Um objeto com os dados paginados.
-   */
-  async findAllWithPagination(
-    page: number = 1,
-    limit: number = 10,
-    options?: FindManyOptions<T>
+  async findAndPaginate(
+    pagination: PaginationDto, 
+    searchColumns: string[] = [],
+    additionalWhere?: (qb: any) => void
   ): Promise<PaginationResult<T>> {
+    const page = parseInt(pagination.page || '1', 10);
+    const limit = parseInt(pagination.limit || '10', 10);
     const skip = (page - 1) * limit;
 
-    const [data, total] = await this.repository.findAndCount({
-      ...options,
-      skip,
-      take: limit,
-    });
+    const queryBuilder = this.repository.createQueryBuilder('entity');
+
+    if (additionalWhere) {
+      additionalWhere(queryBuilder);
+    }
+
+    if (pagination.search_term && searchColumns.length > 0) {
+      const searchTerm = `%${pagination.search_term.toLowerCase()}%`;
+      const whereConditions = searchColumns.map(col => `LOWER(entity.${col}) LIKE :searchTerm`).join(' OR ');
+      queryBuilder.andWhere(`(${whereConditions})`, { searchTerm });
+    }
+
+    if (pagination.sort_column) {
+      const orderByColumn = `entity.${pagination.sort_column}`;
+      const sortOrder = pagination.sort_order === 'desc' ? 'DESC' : 'ASC';
+      queryBuilder.orderBy(orderByColumn, sortOrder);
+    } else {
+      queryBuilder.orderBy('entity.created_at', 'DESC');
+    }
+
+    const [data, total] = await Promise.all([
+      queryBuilder.offset(skip).limit(limit).getMany(),
+      queryBuilder.getCount(),
+    ]);
 
     const last_page = Math.ceil(total / limit);
 
@@ -73,7 +88,7 @@ export abstract class BaseService<T extends BaseEntity> {
    */
   async findById(id: number, options?: FindOneOptions<T>): Promise<T | undefined> {
     return await this.repository.findOne({
-      where: { id: id as any }, // 'id' pode ser string ou number, TypeORM lida
+      where: { id: id as any },
       ...options
     });
   }
@@ -86,7 +101,7 @@ export abstract class BaseService<T extends BaseEntity> {
    */
   async findByUuid(uuid: string, options?: FindOneOptions<T>): Promise<T | undefined> {
     return await this.repository.findOne({
-      where: { uuid: uuid as any }, // 'uuid' é string
+      where: { uuid: uuid as any },
       ...options
     });
   }

@@ -7,6 +7,7 @@ import { Trial } from './trial.entity';
 import { PaymentIntention } from './payment-intention.entity';
 import { Sale } from './sale.entity';
 import { SystemModule } from './system-module.entity';
+import { Service } from './service.entity';
 
 @Entity('accounts')
 export class Account {
@@ -79,7 +80,10 @@ export class Account {
       referencedColumnName: 'id',
     },
   })
-  systemModules: SystemModule[]; 
+  systemModules: SystemModule[];
+
+  @OneToMany(() => Service, (service) => service.account)
+  services: Service[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

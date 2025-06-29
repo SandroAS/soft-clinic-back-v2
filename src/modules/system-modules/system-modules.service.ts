@@ -39,6 +39,15 @@ export class SystemModulesService {
   }
 
   /**
+   * Encontra um módulo de sistema pelo seu UUID.
+   * @param uuid O UUID do módulo.
+   * @returns O módulo de sistema ou null/undefined se não encontrado.
+   */
+  async findOneByUuid(uuid: string): Promise<SystemModule | undefined> {
+    return this.systemModuleRepository.findOne({ where: { uuid } });
+  }
+
+  /**
    * Encontra um módulo de sistema pelo seu nome.
    * @param name O nome do módulo (do enum SystemModuleName).
    * @returns O módulo de sistema ou null/undefined se não encontrado.

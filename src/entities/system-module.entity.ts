@@ -1,14 +1,7 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  BeforeInsert,
-  ManyToMany,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, ManyToMany, OneToMany } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { Account } from './account.entity';
+import { Service } from './service.entity';
 
 export enum SystemModuleName {
   DENTISTRY = 'DENTISTRY',
@@ -40,8 +33,16 @@ export class SystemModule {
   @ManyToMany(() => Account, (account) => account.systemModules)
   accounts: Account[];
 
-  @CreateDateColumn({ name: 'created_at' })
+  @OneToMany(() => Service, (service) => service.systemModule)
+  services: Service[];
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  created_at: Date;
+
+  @Column({ 
+    type: 'timestamp', 
+    default: () => 'CURRENT_TIMESTAMP', 
+    onUpdate: 'CURRENT_TIMESTAMP' 
+  })
   updated_at: Date;
 }
