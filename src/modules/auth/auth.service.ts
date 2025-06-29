@@ -14,6 +14,8 @@ import { AuthSignupDto } from './dtos/auth-signup';
 import { UserMetasService } from '../user-metas/user-metas.service';
 import { UserMetasResponseDto } from '../user-metas/dtos/user-metas-response.dto';
 import { RolesTypes } from '../roles/dtos/roles-types.dto';
+import { ServicesService } from '../services/services.service';
+import { SystemModuleName } from '@/entities/system-module.entity';
 
 const scrypt = promisify(_scrypt);
 
@@ -25,6 +27,7 @@ export class AuthService {
     private readonly accountsService: AccountsService,
     private readonly trialsService: TrialsService,
     private readonly userMetasService: UserMetasService,
+    private readonly servicesService: ServicesService
   ) {}
 
   async whoami(userId: number): Promise<AuthResponseDto> {
@@ -80,6 +83,10 @@ export class AuthService {
       await this.accountsService.update(account.id, { last_trial_id: trial.id }, queryRunner.manager);
 
       await this.usersService.update(user.id, { account_id: account.id }, queryRunner.manager);
+
+      let selectedClinicType: SystemModuleName;
+      selectedClinicType = SystemModuleName.DENTISTRY; // FIXO ATE O SISTEM TER DEMAIS MODULOS
+      await this.servicesService.createDefaultServicesForNewAccount(selectedClinicType, account.id, queryRunner.manager)
 
       await queryRunner.commitTransaction();
 

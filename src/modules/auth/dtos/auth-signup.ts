@@ -1,6 +1,7 @@
 import { IsString, IsNotEmpty, IsEmail, MinLength, IsBoolean, IsOptional, MaxLength, Equals } from 'class-validator';
 import { IsCpf } from '@/common/validators/is-cpf.validator';
 import { MatchPassword } from '@/common/validators/match-password.validator';
+import { SystemModuleName } from '@/entities/system-module.entity';
 
 export class AuthSignupDto {
   @IsString({ message: 'O nome deve ser uma string.' })
@@ -26,7 +27,7 @@ export class AuthSignupDto {
   @IsString({ message: 'O tipo de clínica deve ser uma string.' })
   @IsNotEmpty({ message: 'O tipo de clínica é obrigatório.' })
   // Se 'clinicType' tiver valores fixos, pode usar @IsIn(['odontologica', 'psicologia'])
-  clinicType: string;
+  clinicType: SystemModuleName;
 
   @IsString({ message: 'A senha deve ser uma string.' })
   @IsNotEmpty({ message: 'A senha é obrigatória.' })

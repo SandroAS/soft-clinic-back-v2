@@ -1,8 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { SystemModule, SystemModuleName } from '@/entities/system-module.entity';
-
 
 @Injectable()
 export class SystemModulesService {
@@ -43,8 +42,14 @@ export class SystemModulesService {
    * @param uuid O UUID do módulo.
    * @returns O módulo de sistema ou null/undefined se não encontrado.
    */
-  async findOneByUuid(uuid: string): Promise<SystemModule | undefined> {
+  async findOneByUuid(uuid: string, manager?: EntityManager): Promise<SystemModule | undefined> {
+    const repository = manager ? manager.getRepository(SystemModule) : this.systemModuleRepository;
     return this.systemModuleRepository.findOne({ where: { uuid } });
+  }
+
+  async findByName(name: SystemModuleName, manager?: EntityManager): Promise<SystemModule | undefined> {
+    const repository = manager ? manager.getRepository(SystemModule) : this.systemModuleRepository;
+    return repository.findOne({ where: { name } });
   }
 
   /**
