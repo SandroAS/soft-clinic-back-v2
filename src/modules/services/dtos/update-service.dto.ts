@@ -1,4 +1,5 @@
-import { IsString, IsOptional, IsDecimal, Min, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsString, IsOptional, Min, IsUUID, IsNumber } from 'class-validator';
 
 export class UpdateServiceDto {
   @IsOptional()
@@ -10,9 +11,10 @@ export class UpdateServiceDto {
   description?: string;
 
   @IsOptional()
-  @IsDecimal({ decimal_digits: '0,2' }, { message: 'O preço deve ser um número decimal com até 2 casas.' })
+  @Type(() => Number)
+  @IsNumber({}, { message: 'O preço deve ser um número válido.' })
   @Min(0, { message: 'O preço não pode ser negativo.' })
-  price?: string;
+  price?: number;
 
   @IsOptional()
   @IsUUID('4', { message: 'O UUID do módulo de sistema deve ser um UUID válido (versão 4).' })

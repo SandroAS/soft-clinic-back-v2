@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsString, IsDecimal, Min, IsUUID, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString, Min, IsUUID, IsNumber } from 'class-validator';
 
 export class CreateServiceDto {
   @IsNotEmpty({ message: 'O nome do serviço é obrigatório.' })
