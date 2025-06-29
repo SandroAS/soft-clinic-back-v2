@@ -108,7 +108,7 @@ export class ServicesService extends BaseService<Service> {
           { 
             name: serviceData.name, 
             description: serviceData.description, 
-            price: serviceData.price,
+            price: Number(serviceData.price),
             system_module_uuid: systemModule.uuid
           }, 
           accountId, 

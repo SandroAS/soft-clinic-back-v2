@@ -1,18 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  HttpCode,
-  HttpStatus,
-  UsePipes,
-  ValidationPipe,
-  UseGuards,
-  NotFoundException,
-} from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode, HttpStatus, UseGuards, NotFoundException } from '@nestjs/common';
 import { SystemModulesService } from './system-modules.service';
 import { CreateSystemModuleDto } from './dtos/create-system-module.dto';
 import { UpdateSystemModuleDto } from './dtos/update-system-module.dto';
@@ -21,8 +7,7 @@ import { UpdateSystemModuleDto } from './dtos/update-system-module.dto';
 // import { Roles } from '../auth/roles.decorator'; // Se você tiver um decorador @Roles
 // import { Role } from '../common/enums/role.enum'; // Se você tiver um enum de roles
 
-@Controller('system-modules') // Prefixo da rota
-@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
+@Controller('system-modules')
 // @UseGuards(JwtAuthGuard, RolesGuard) // Protege o controlador com autenticação e roles
 // @Roles(Role.Admin) // Exemplo: apenas admins podem gerenciar módulos
 export class SystemModulesController {
@@ -34,10 +19,10 @@ export class SystemModulesController {
   //   return this.systemModuleService.create(createSystemModuleDto.name);
   // }
 
-  // @Get()
-  // async findAll() {
-  //   return this.systemModuleService.findAll();
-  // }
+  @Get()
+  async findAll() {
+    return this.systemModuleService.findAll(['uuid', 'name']);
+  }
 
   // @Get(':id')
   // async findOne(@Param('id') id: string) {

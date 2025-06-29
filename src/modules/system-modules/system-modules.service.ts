@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { SystemModule, SystemModuleName } from '@/entities/system-module.entity';
 
+type SystemModuleColumns = 'id' | 'uuid' | 'name' | 'created_at' | 'updated_at'
+
 @Injectable()
 export class SystemModulesService {
   constructor(
@@ -24,8 +26,8 @@ export class SystemModulesService {
    * Encontra todos os módulos de sistema.
    * @returns Um array de módulos de sistema.
    */
-  async findAll(): Promise<SystemModule[]> {
-    return this.systemModuleRepository.find();
+  async findAll(select?: SystemModuleColumns[]): Promise<SystemModule[]> {
+    return this.systemModuleRepository.find({ select });
   }
 
   /**
