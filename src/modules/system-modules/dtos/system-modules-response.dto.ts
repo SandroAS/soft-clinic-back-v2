@@ -1,7 +1,7 @@
 import { Expose } from 'class-transformer';
 import { SystemModule, SystemModuleName } from '@/entities/system-module.entity';
 
-export class SystemModulesResponseDto {
+export class SystemModuleResponseDto {
   @Expose()
   uuid: string;
 

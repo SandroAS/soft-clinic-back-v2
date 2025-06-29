@@ -1,7 +1,7 @@
 import { Expose, Type } from 'class-transformer';
 import { Account } from '@/entities/account.entity';
 import { TrialResponseDto } from '@/modules/trials/dtos/trial-response.dto';
-import { SystemModulesResponseDto } from '@/modules/system-modules/dtos/system-modules-response.dto';
+import { SystemModuleResponseDto } from '@/modules/system-modules/dtos/system-modules-response.dto';
 
 export class AccountResponseDto {
   @Expose()
@@ -15,8 +15,8 @@ export class AccountResponseDto {
   lastTrial: TrialResponseDto;
 
   @Expose({ name: 'systemModules' })
-  @Type(() => SystemModulesResponseDto)
-  systemModules: SystemModulesResponseDto[];
+  @Type(() => SystemModuleResponseDto)
+  systemModules: SystemModuleResponseDto[];
 
   constructor(partial: Partial<Account>) {
     this.uuid = partial.uuid;
@@ -30,7 +30,7 @@ export class AccountResponseDto {
 
     if (partial.systemModules && partial.systemModules.length > 0) {
       this.systemModules = partial.systemModules.map(
-        (module) => new SystemModulesResponseDto(module)
+        (module) => new SystemModuleResponseDto(module)
       );
     }
   }

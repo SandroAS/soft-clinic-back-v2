@@ -1,9 +1,16 @@
 import { Exclude, Expose } from 'class-transformer';
 import { Service } from '@/entities/service.entity';
+import { SystemModuleResponseDto } from '@/modules/system-modules/dtos/system-modules-response.dto';
 
 export class ServiceResponseDto {
   @Exclude()
   id: number;
+
+  @Exclude()
+  account_id: number;
+
+  @Exclude()
+  system_module_id: number;
 
   @Expose()
   uuid: string;
@@ -17,7 +24,17 @@ export class ServiceResponseDto {
   @Expose()
   price: number;
 
+  @Expose()
+  systemModule: SystemModuleResponseDto;
+
   constructor(partial: Partial<Service>) {
-    Object.assign(this, partial);
+    this.uuid = partial.uuid;
+    this.name = partial.name;
+    this.description = partial.description;
+    this.price = partial.price;
+
+    if (partial.systemModule) {
+      this.systemModule = new SystemModuleResponseDto(partial.systemModule);
+    }
   }
 }
