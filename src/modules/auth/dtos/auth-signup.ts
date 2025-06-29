@@ -15,8 +15,8 @@ export class AuthSignupDto {
 
   @IsString({ message: 'O telefone deve ser uma string.' })
   @IsNotEmpty({ message: 'O telefone é obrigatório.' })
-  @MinLength(14, { message: 'O telefone deve ter pelo menos 10 dígitos.' })
-  @MaxLength(15, { message: 'O telefone deve ter pelo menos 11 dígitos.' })
+  @MinLength(14, { message: 'O telefone deve ter pelo menos 14 dígitos.' })
+  @MaxLength(15, { message: 'O telefone deve ter pelo menos 15 dígitos.' })
   cellphone: string;
 
   @IsString({ message: 'O CPF deve ser uma string.' })

@@ -11,14 +11,14 @@ import { SystemModuleName } from '@/entities/system-module.entity';
 
 const DEFAULT_MODULE_SERVICES: { [key in SystemModuleName]?: { name: string; description: string; price: string }[] } = {
   [SystemModuleName.DENTISTRY]: [
-    { name: 'Consulta Odontológica Inicial', description: 'Avaliação completa da saúde bucal e plano de tratamento.', price: '150.00' },
+    { name: 'Consulta Odontológica Inicial', description: 'Avaliação completa da saúde bucal e plano de tratamento.', price: '100.00' },
     { name: 'Limpeza Dental (Profilaxia)', description: 'Remoção de tártaro e placa bacteriana, polimento.', price: '120.00' },
     { name: 'Restauração em Resina Composta', description: 'Preenchimento de cáries com material estético.', price: '180.00' },
-    { name: 'Extração Simples', description: 'Remoção de dente sem complicação cirúrgica.', price: '200.00' },
-    { name: 'Clareamento Dental (Sessão)', description: 'Sessão de clareamento no consultório.', price: '300.00' },
+    { name: 'Extração Simples', description: 'Remoção de dente sem complicação cirúrgica.', price: '300.00' },
+    { name: 'Clareamento Dental (Sessão)', description: 'Sessão de clareamento no consultório.', price: '200.00' },
     { name: 'Aplicação de Flúor', description: 'Fortalecimento do esmalte dental para prevenção de cáries.', price: '50.00' },
     { name: 'Radiografia Periapical', description: 'Exame radiográfico detalhado de um dente específico.', price: '80.00' },
-    { name: 'Consulta de Urgência', description: 'Atendimento para dor ou emergência odontológica.', price: '100.00' },
+    { name: 'Consulta de Urgência', description: 'Atendimento para dor ou emergência odontológica.', price: '120.00' },
     { name: 'Check-up Preventivo', description: 'Revisão periódica para manter a saúde bucal.', price: '90.00' },
     { name: 'Ortodontia - Manutenção Mensal', description: 'Acompanhamento e ajuste de aparelho ortodôntico.', price: '130.00' },
   ],
