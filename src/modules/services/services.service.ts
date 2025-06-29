@@ -106,10 +106,10 @@ export class ServicesService extends BaseService<Service> {
       for (const serviceData of defaultServices) {
         await this.createServiceForAccount(
           { 
-              name: serviceData.name, 
-              description: serviceData.description, 
-              price: serviceData.price,
-              system_module_uuid: systemModule.uuid
+            name: serviceData.name, 
+            description: serviceData.description, 
+            price: serviceData.price,
+            system_module_uuid: systemModule.uuid
           }, 
           accountId, 
           manager
