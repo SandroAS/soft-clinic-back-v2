@@ -89,7 +89,8 @@ export class ServicesService extends BaseService<Service> {
       ...createServiceDto,
       price: Number(createServiceDto.price),
       account_id: accountId,
-      system_module_id: systemModule.id
+      system_module_id: systemModule.id,
+      systemModule
     });
 
     return serviceRepository.save(newService);
